@@ -3,7 +3,7 @@
  Created: 2020/3/10 下午 07:28:01
  Author:  Liu
 */
-#include <Adafruit_INA219.h>
+#include <Adafruit_INA219.h> // 1.0.6
 #include "WaterBox_PMU.h"
 WaterBox_PMU PMU;
 
@@ -41,7 +41,8 @@ void loop()
   //PMU.ControlPower(PMU.ON);
   //PMU.getBetteryState();
 
-  if (PMU.state == PMU.MASTER)
+  // if (PMU.state == PMU.MASTER)
+  if(true)
   {
     PMU.ControlPower(PMU.OFF);
     Serial.println(F("[System] Upload to ThinkSpeak"));
@@ -50,7 +51,7 @@ void loop()
     //NBIOT.AT_Test();
     //NBIOT.getGPS();
 
-    _Data = F("AT+HTTPPARA=\"URL\",\"http://api.thingspeak.com/update?api_key=XCNNEYMQA16HCGPG");
+    _Data = F("AT+HTTPPARA=\"URL\",\"http://api.thingspeak.com/update?api_key=JM921M08U3DHZ3JC");
     _Data += F("&field1=");
     _Data += String(PMU.Volate);
     _Data += F("&field2=");
@@ -93,60 +94,7 @@ void loop()
     NBIOT.AT_CMD(F("AT+CIPSHUT"), true);
     NBIOT.OFF();
 
-    PMU.Sleep();
+    // PMU.Sleep();
   }
 
-
-  // delay(1000);
-
- //    NBIOT.ON();
-  // delay(500);
-   //NBIOT.OFF();
-  // delay(500);
-   /*
-   String _Data = F("AT+HTTPPARA=\"URL\",\"http://api.thingspeak.com/update?api_key=RDCKV7AD5Q7Q03N3");
-   _Data += F("&field1=");
-   _Data += String(PMU.Volate);
-   _Data += F("&field2=");
-   _Data += String(PMU.Current);
-   _Data += F("&field3=");
-   _Data += String("");
-   _Data += F("&field4=");
-   _Data += String("");
-   _Data += F("&field5=");
-   _Data += String("");
-   _Data += F("&field6=");
-   _Data += String("");
-   _Data += F("&field7=");
-   _Data += String("");
-   _Data += F("&field8=");
-   _Data += String("");
-   _Data += F("\"");
-
-   NBIOT.ON();
-   NBIOT.AT_Test();
-   NBIOT.AT_CMD(F("AT+CSTT=\"nbiot\""), true);
-   NBIOT.AT_CMD(F("AT+CIICR"), true);
-   NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"Contype\", \"GPRS\""), true);
-   NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"APN\",\"nbiot\""), true);
-   NBIOT.AT_CMD(F("AT+SAPBR=1,1"), true);
-
-   NBIOT.AT_CMD(F("AT+HTTPINIT"), true);
-
-   NBIOT.AT_CMD(F("AT+HTTPPARA=\"CID\",1"), true);
-
-   NBIOT.AT_CMD(_Data, false);
-   delay(500);
-
-   NBIOT.AT_CMD(F("AT+HTTPACTION=0"), true);
-   delay(20000);
-   NBIOT.AT_CMD(F("AT+HTTPREAD"), true);
-   NBIOT.AT_CMD(F("AT+HTTPTERM"), true);
-
-   NBIOT.AT_CMD(F("AT+SAPBR=0,1"), true);
-   NBIOT.AT_CMD(F("AT+CIPSHUT"), true);
-   NBIOT.OFF();
-
-   PMU.Sleep();
-   */
 }

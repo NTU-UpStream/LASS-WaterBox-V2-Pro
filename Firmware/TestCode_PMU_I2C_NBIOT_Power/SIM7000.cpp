@@ -62,8 +62,8 @@ void SIM7000::setAPN(APN _apnID){
 void SIM7000::ON()
 {
 	digitalWrite(_PowerPin, HIGH);
-	_Debuger(F("Power On, Waiting 20 sec.."), H_NBIOT, EOL);
-	delay(20000);
+	_Debuger(F("Power On, Waiting 30 sec.."), H_NBIOT, EOL);
+	delay(30000);
 }
 
 void SIM7000::OFF()
@@ -154,13 +154,13 @@ uint8_t SIM7000::_ATState(String _str)
 }
 
 void SIM7000::getGPS() {
-	// ½T»{¼Ò²Õª¬ºA
+	// ï¿½Tï¿½{ï¿½Ò²Õªï¿½ï¿½A
 	for (_i_c = 0; _i_c < 5; _i_c++) {
 		if (AT_Test()) break;
 		delay(1000);
 	}
 
-	AT_CMD(F("AT+CGNSPWR=1"), false); // ±Ò°ÊGPS¼Ò²Õ
+	AT_CMD(F("AT+CGNSPWR=1"), false); // ï¿½Ò°ï¿½GPSï¿½Ò²ï¿½
 	_Debuger(F("GPS ON, Waiting 60s for GPS satellite"), H_NBIOT, EOL);
 	delay(30000);
 	_AT(F("AT+CGNSINF"));
@@ -173,7 +173,7 @@ void SIM7000::getGPS() {
 		_Debuger(_slicer(ResString, ",", 0), H_NBIOT, EOL);
 
 		GPSTimeTag = _slicer(ResString, ",", 2);
-		GPSTimeTag = GPSTimeTag.substring(0, GPSTimeTag.length() - 5); // ¥h°£§À¤Úªº.000
+		GPSTimeTag = GPSTimeTag.substring(0, GPSTimeTag.length() - 5); // ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½Úªï¿½.000
 
 		Latitude = _slicer(ResString, ",", 3);
 		Longitude = _slicer(ResString, ",", 4);
@@ -191,7 +191,7 @@ void SIM7000::getGPS() {
 		_Debuger(F("GPS ERROR -> "), H_NBIOT, NONE);
 		_Debuger(ResString, NONE, EOL);
 	}
-	AT_CMD(F("AT+CGNSPWR=0"), false); // Ãö³¬GPS¼Ò²Õ
+	AT_CMD(F("AT+CGNSPWR=0"), false); // ï¿½ï¿½ï¿½ï¿½GPSï¿½Ò²ï¿½
 	_Debuger(F("GPS OFF"), H_NBIOT, EOL);
 }
 

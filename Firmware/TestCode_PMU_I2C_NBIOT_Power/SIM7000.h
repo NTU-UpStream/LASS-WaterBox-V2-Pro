@@ -9,16 +9,14 @@
 class SIM7000
 {
 public:
-	enum UART
-	{
+	enum UART{
 		NONE,
 		EOL,
 		H_NBIOT,
 		H_CMD
 	};
 
-	enum APN
-	{
+	enum APN{
 		cht_NB,
 		cht_4G,
 		fet_NB,
