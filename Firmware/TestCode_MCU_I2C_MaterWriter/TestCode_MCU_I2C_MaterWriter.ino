@@ -20,7 +20,8 @@ void setup() {
   
   pinMode(SW_1, INPUT);
   pinMode(SW_2, INPUT);
-
+  
+  Wire.setClock(200000);
   Wire.begin();                // join i2c bus with address #8
   Serial.println("Setup Done");         // print the integer
 }

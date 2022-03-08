@@ -53,7 +53,7 @@ void setup() {
   digitalWrite(LinkIt7697, HIGH);
 //  digitalWrite(INA219, LOW);
   digitalWrite(SIMCOM7000E, LOW);
-
+  Wire.setClock(200000);
   Wire.begin(0x70);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
 
