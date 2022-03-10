@@ -40,7 +40,7 @@ struct PUBLISH {
   uint8_t RL_size;
 
   byte PL_topic[2];
-  byte TOPIC[30];
+  byte TOPIC[40];
 
   byte PL_msg[2];
   byte MSG[300];
@@ -76,9 +76,10 @@ String ZeroPadding(byte _value) {
 
 void showByteBuffer(byte* _buffer, uint16_t _size) {
   for (uint16_t _i = 0; _i < _size; _i++) {
-    Serial.print(F("0x"));
-    Serial.print(ZeroPadding(_buffer[_i]));
-    Serial.print(F(" "));
+//    Serial.print(F("0x"));
+//    Serial.print(ZeroPadding(_buffer[_i]));
+//    Serial.print(F(" "));
+    Serial.print((char)_buffer[_i]);
     if (_i % 10 == 9) Serial.print(F("\r\n"));
     delay(10);
   }
@@ -135,8 +136,8 @@ void loop()
 
     id_str = PMU.Field_3 + radom_str;
     id_str.toCharArray(CONNECT_KPG.ID, id_str.length() + 1);       // 把 ID 轉為char array
-    CONNECT_KPG.PL_id[0] = (byte)msg_str.length() / 256;
-    CONNECT_KPG.PL_id[1] = (byte)msg_str.length() % 256;
+    CONNECT_KPG.PL_id[0] = msg_str.length() / 256;
+    CONNECT_KPG.PL_id[1] = msg_str.length() % 256;
     
     MQTT_PL = 2 + id_str.length();  // 計算RL長度 = 2+PL(Topic)+2+PL(Payload)
     CONNECT_KPG.RL_size =  CalculateRL(MQTT_PL);        // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
@@ -145,8 +146,8 @@ void loop()
     
     topic_str = MQTT_LASS_Topic + PMU.Field_3;
     topic_str.toCharArray(PUBLISH_KPG.TOPIC, topic_str.length() + 1); // 把 TOPIC 轉為char array
-    PUBLISH_KPG.PL_topic[0] = (byte)topic_str.length() / 256;
-    PUBLISH_KPG.PL_topic[1] = (byte)topic_str.length() % 256;
+    PUBLISH_KPG.PL_topic[0] = topic_str.length() / 256;
+    PUBLISH_KPG.PL_topic[1] = topic_str.length() % 256;
 
     //    msg_str = "|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date=2019-03-21|time=06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.70|bat_a=400.00|";
     msg_str = "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1";
@@ -162,19 +163,23 @@ void loop()
     msg_str.concat(F("|bat_v=")); msg_str.concat(PMU.Field_10);
     msg_str.concat(F("|bat_a=")); msg_str.concat(PMU.Field_11);
     msg_str.concat(F("|"));
+
+    
+    Serial.println(id_str);
+    Serial.println(topic_str);
     Serial.println(msg_str);
 
 
     msg_str.toCharArray(PUBLISH_KPG.MSG, msg_str.length() + 1);       // 把 MSG 轉為char array
-    PUBLISH_KPG.PL_msg[0] = (byte)msg_str.length() / 256;
-    PUBLISH_KPG.PL_msg[1] = (byte)msg_str.length() % 256;
+    PUBLISH_KPG.PL_msg[0] = msg_str.length() / 256;
+    PUBLISH_KPG.PL_msg[1] = msg_str.length() % 256;
 
     
     MQTT_PL = 2 + topic_str.length() + 2 + msg_str.length();  // 計算RL長度 = 2+PL(Topic)+2+PL(Payload)
     PUBLISH_KPG.RL_size =  CalculateRL(MQTT_PL);        // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
     memcpy(PUBLISH_KPG.RL, MQTT_RL, 4);                 // 把MQTT_RL 這個Buffer 複製到PUBLIC_KPG裡面
 
-    showByteBuffer(PUBLISH_KPG.TOPIC, topic_str.length() + 1);
+    showByteBuffer(PUBLISH_KPG.TOPIC, topic_str.length() + 6);
     showByteBuffer(PUBLISH_KPG.MSG, msg_str.length() + 1);
 
 
