@@ -1,0 +1,82 @@
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <U8g2lib.h>
+#include <dfrobot_turbidity.h>
+#include <WaterBox_util.h>
+#include <MenuSystem.h>
+#include <DS3231M.h>
+#include <Ezo_i2c.h>
+#include <Adafruit_ADS1015.h>
+#include <Adafruit_INA219.h>
+#include <SdFat.h>
+#include <SPI.h>
+#include <Wire.h>
+
+#define modeSwitch 5
+const uint8_t SD_CHIP_SELECT = 4;
+
+/***** << OLED library: u8g2 >> *****/
+
+//U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ OLED_CS, /* dc=*/ 16, /* reset=*/ 17);
+
+//Important Object initialize
+extern MenuPage Main_page;
+DS3231M_Class Clock;
+Ezo_board pH = Ezo_board(99, "PH");
+Ezo_board EC = Ezo_board(100, "EC");
+Ezo_board TEMP = Ezo_board(102, "TEMP");
+Dfrobot_Turbidity TURB = Dfrobot_Turbidity();
+Adafruit_ADS1015 ads1115;
+Adafruit_INA219 ina219;
+SdFat SDcard;
+MenuSystem Menu {
+  &Main_page,
+  &pH, &EC, &TEMP,&TURB,
+  &u8g2,
+  &Clock,
+  &ads1115,
+  &ina219,
+  &SDcard
+};
+
+void setup(void)
+{
+  Wire.setClock(50000);
+  Serial.begin(9600);
+  digitalWrite(modulePower, HIGH);        //Open all module
+  pinMode(SDA, INPUT_PULLUP);
+  pinMode(sensorSwitch, INPUT_PULLUP);    
+  pinMode(modulePower, OUTPUT);
+  pinMode(modeSwitch, INPUT);
+  pinMode(LORA_CS, OUTPUT);
+  pinMode(SD_CS, OUTPUT);
+  pinMode(OLED_CS, OUTPUT);
+  digitalWrite(LORA_CS, HIGH);
+  digitalWrite(SD_CS, HIGH);
+  digitalWrite(OLED_CS, LOW);
+  u8g2.begin();
+  ads1115.begin();
+  ads1115.setGain(GAIN_ONE);
+  ina219.begin();
+  Wire.begin();  
+  Menu.load_setting();
+}
+
+void loop(void)
+{
+
+  Menu.runMenu();
+  /*
+  Serial.println(Menu.pmu_date());
+  Serial.println(Menu.pmu_time());
+  Serial.println(Menu.pmu_lon());
+  Serial.println(Menu.pmu_lat());
+  Serial.println(Menu.pmu_ec());
+  Serial.println(Menu.pmu_ph());
+  Serial.println(Menu.pmu_temp());
+  Serial.println(Menu.pmu_turb());
+  Serial.println(Menu.pmu_volt());
+  Serial.println(Menu.pmu_current());
+  */
+}
