@@ -114,9 +114,13 @@ uint8_t CalculateRL(uint32_t _size) {
   PackConnectBuffer 連線用封包
   PackPublishBuffer 發布用封包
 *********************************/
-uint16_t PackPublishBuffer(String _topic, String _msg) {
+uint16_t PackPublishBuffer() {
   uint16_t _pl = 0;
   uint16_t _size = 0;
+
+
+  Serial.println(PUBLISH_KPG.PL_msg[0]);
+  Serial.println(PUBLISH_KPG.PL_msg[1]);
 
   // FixHeader
   MQTT_MSG[0] = (byte) PUBLISH_KPG.Fix_Header;
@@ -152,9 +156,6 @@ uint16_t PackPublishBuffer(String _topic, String _msg) {
 
   // MSG
   _pl = PUBLISH_KPG.PL_msg[0] * 256 + PUBLISH_KPG.PL_msg[1];
-
-  Serial.println(PUBLISH_KPG.PL_msg[0]);
-  Serial.println(PUBLISH_KPG.PL_msg[1]);
 
   for (uint8_t _i = 0; _i < _pl; _i++) {
     MQTT_MSG[_size + _i] = (byte) PUBLISH_KPG.MSG[_i];
@@ -355,13 +356,6 @@ void loop()
     CalculatePL(PUBLISH_KPG.PL_topic, topic_str);
     //    CalculatePL(PUBLISH_KPG.PL_msg, msg_str);
 
-    PUBLISH_KPG.PL_msg[0] = (byte)msg_str.length() / 256;
-    PUBLISH_KPG.PL_msg[1] = (byte)msg_str.length() % 256;
-
-    
-  Serial.println(PUBLISH_KPG.PL_msg[0]);
-  Serial.println(PUBLISH_KPG.PL_msg[1]);
-
 
     MQTT_PL = 2 + topic_str.length() + 2 + msg_str.length();  // 計算RL長度 = 2+PL(Topic)+2+PL(Payload)
     PUBLISH_KPG.RL_size =  CalculateRL(MQTT_PL);        // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
@@ -369,8 +363,14 @@ void loop()
 
     topic_str.toCharArray(PUBLISH_KPG.TOPIC, topic_str.length() + 1); // 把 TOPIC 轉為char array
     msg_str.toCharArray(PUBLISH_KPG.MSG, msg_str.length() + 1);       // 把 MSG 轉為char array
+    
+    PUBLISH_KPG.PL_msg[0] = (byte)msg_str.length() / 256;
+    PUBLISH_KPG.PL_msg[1] = (byte)msg_str.length() % 256;
 
-    BUFFER_SIZE = PackPublishBuffer(topic_str, msg_str);
+    Serial.println(PUBLISH_KPG.PL_msg[0]);
+    Serial.println(PUBLISH_KPG.PL_msg[1]);
+
+    BUFFER_SIZE = PackPublishBuffer();
     Serial.println(BUFFER_SIZE);
 
     //    showByteBuffer(MQTT_MSG, BUFFER_SIZE);
