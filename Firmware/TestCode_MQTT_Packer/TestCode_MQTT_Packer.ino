@@ -1,7 +1,7 @@
 #include "MQTT_Packer.h"
 uint8_t _COUNT=0;
 char ClientID[] = "UpStream_12345";
-char BUFFER[128];
+char BUFFER[256]={0};
 
 MQTT_Packer MSG(BUFFER);
 
@@ -12,7 +12,6 @@ void setup() {
   
   pinMode(13,OUTPUT);
   MSG.setDebuger(Serial);
-  MSG.initConnect(ClientID);
 
 }
 

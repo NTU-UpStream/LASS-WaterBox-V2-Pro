@@ -15,6 +15,9 @@ SIM7000 NBIOT;
 uint8_t _c = 0;
 String _Data;
 
+byte MQTT_MSG[512]={0};
+byte MQTT_CONNECT[128]={0};
+
 void setup()
 {
   Serial.begin(9600);
@@ -27,7 +30,7 @@ void setup()
   PMU.setDebuger(Serial);
   PMU.setSleepSec(5);
   PMU.setWakeUpVolate(3.2);
-  PMU.PowerSaveMode(PMU.ON);
+  PMU.PowerSaveMode(PMU.ON); // PMU.ON進入睡眠, Delay不睡覺 PMU.OFF
   PMU.setINA219(0x40);
 
   Serial.println(F("[System] Setup Done"));
@@ -71,10 +74,10 @@ void loop()
 
     NBIOT.ON();
     NBIOT.AT_Test();
-    NBIOT.AT_CMD(F("AT+CSTT=\"internet.iot\""), true);
+    NBIOT.AT_CMD(F("AT+CSTT=\"iot4ga2\""), true);
     NBIOT.AT_CMD(F("AT+CIICR"), true);
     NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"Contype\", \"GPRS\""), true);
-    NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"APN\",\"internet.iot\""), true);
+    NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"APN\",\"iot4ga2\""), true);
     NBIOT.AT_CMD(F("AT+SAPBR=1,1"), true);
     
     NBIOT.AT_CMD(F("AT+HTTPINIT"), true);

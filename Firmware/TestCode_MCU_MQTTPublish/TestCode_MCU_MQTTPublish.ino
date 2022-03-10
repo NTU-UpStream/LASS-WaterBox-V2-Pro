@@ -382,7 +382,8 @@ void setup() {
   String id_str = DeviceID + "_" + (char)random(65, 90) + (char)random(65, 90) + (char)random(97, 122) + (char)random(97, 122);
   String topic_str = MQTT_LASS_Topic + DeviceID;
 
-  String msg_str = (String)"{\"Device\":\"WaterBoxPro\",\"Ver\":2.2,\"FT\":\"UpStream\",\"DateTime\":\"2022-03-02\"}";
+  //  String msg_str = (String)"{\"Device\":\"WaterBoxPro\",\"Ver\":2.2,\"FT\":\"UpStream\",\"DateTime\":\"2022-03-02\"}";
+  String msg_str = (String)"|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date = 2019-03-21|time = 06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00";
 
   //  Serial.print("[MQTT] Add random symbols: ");
   //  Serial.print(id_str);
@@ -446,12 +447,12 @@ void setup() {
 
   if (client.connect(Server_LASS, Port_LASS)) {
     // Send MQTT CONCENT PACKAGE
-    _packageSize = sizeof(MQTT_CONCENT_package) / sizeof(MQTT_CONCENT_package[0]);
-    for (uint16_t _i = 0; _i < _packageSize; _i++) {
-      client.write(MQTT_CONCENT_package[_i]);
-    }
+    //    _packageSize = sizeof(MQTT_CONCENT_package) / sizeof(MQTT_CONCENT_package[0]);
+    //    for (uint16_t _i = 0; _i < _packageSize; _i++) {
+    //      client.write(MQTT_CONCENT_package[_i]);
+    //    }
 
-    //    //     Send MQTT PUBLISH PACKAGE
+    //    // Send MQTT PUBLISH PACKAGE
     //    _packageSize = sizeof(MQTT_Test_package) / sizeof(MQTT_Test_package[0]);
     //    for (uint16_t _i = 0; _i < _packageSize; _i++) {
     //      client.write(MQTT_Test_package[_i]);
@@ -459,10 +460,10 @@ void setup() {
 
 
     // send MQTT CONCENT(BUFFER)
-    //    _packageSize = PackConnectBuffer(&CONNECT_KPG);
-    //    for (uint16_t _i = 0; _i < _packageSize; _i++) {
-    //      client.write(MQTT_BUFFER[_i]);
-    //    }
+    _packageSize = PackConnectBuffer(&CONNECT_KPG);
+    for (uint16_t _i = 0; _i < _packageSize; _i++) {
+      client.write(MQTT_BUFFER[_i]);
+    }
     delay(500);
     // send MQTT PACKAGE(BUFFER)
     _packageSize = PackPublishBuffer(&PUBLISH_KPG);

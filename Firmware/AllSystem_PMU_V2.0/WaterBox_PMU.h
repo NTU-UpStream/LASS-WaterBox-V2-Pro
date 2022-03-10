@@ -47,8 +47,8 @@ public:
     Req_APN,
     Req_MQTT_CONNECT,
     Req_MQTT_MSG,
-    Req_RESTFUL_BUFFER,
-    
+    Req_Field,
+    Req_RESTFUL_BUFFER
   };
   
   WaterBox_PMU();           // 建構函式 
@@ -57,19 +57,17 @@ public:
 
   void init(uint16_t _pinMain= 2, uint16_t _pinNBIOT=3, uint16_t _pinINA219=4);
   void setINA219(uint8_t _addr);
+  
   static void setDebuger(Stream& refSer);                // 設定debug用的輸出
   static void setWakeUpVolate(float _v);                    // 設定喚醒電壓
   static void setSleepSec(uint32_t _sec);
 
-  static uint8_t Sleep(STATE _state = SLAVER);         // 開始睡眠：切換到Master，關閉供電後開始進入睡眠循環，循環結束時更新電池狀態，低於喚醒電源後再開始供電返回1 (可以用while(Sleep())一值睡
+  static uint8_t Sleep(STATE _type = SLAVER);         // 開始睡眠：切換到Master，關閉供電後開始進入睡眠循環，循環結束時更新電池狀態，低於喚醒電源後再開始供電返回1 (可以用while(Sleep())一值睡
   static void PowerSaveMode(POWER _state);
   static void ControlPower(POWER _state);
 
   static void getBetteryState();                         // 取得電池狀態：切換到Master，呼叫INA219拿資料後更新變數
   static void LED(uint16_t _times, uint16_t _interval);
-
-  void setMQTTConnect(byte* _buffer);
-  void setMQTTMsg(byte* _buffer);
 
   static float Volate;                    // 電池上次的電壓
   static float Current;                   // 電池上次的電流量
@@ -83,14 +81,18 @@ public:
   static String Field_6;
   static String Field_7;
   static String Field_8;
+  static String Field_9;
+  static String Field_10;
+  static String Field_11;
+  static String Field_12;
 
   static String APN;
-  static uint8_t UploadMQTT;          // 使用MQTT上傳資料
-  static uint8_t UploadRESTfulAPI;    // 使用RESTfulAPI上傳資料
+  
   static uint16_t MQTTSizeMsg;        // MQTT 訊息封包的大小
-  static uint8_t MQTTSizeConnect;     // MQTT 連線封包的大小
+  static uint16_t MQTTSizeConnect;     // MQTT 連線封包的大小
+  static void showBuffer(byte* _buffer, uint16_t _size);
 
-  static String ATCMD;                                    //  給NBIOT的Command
+  static String ATCMD;                //  給NBIOT的Command
   static void ATClear();
 
 private:
@@ -102,8 +104,6 @@ private:
   //static SIM7000 _NB;
 
   static Stream& refSerial;
-  static byte* _ptr_MQTT_Connect;
-  static byte* _ptr_MQTT_Msg;
   
   static uint8_t _Addr;
   static uint8_t _INA219Addr;
@@ -116,6 +116,7 @@ private:
   static float _WakeUpVoltage;
 
   static void _SwitchToSlaver(uint8_t _addr);
+  static void _SwitchToMaster(void);
 
   static void _receiveEvent(int howMany);
   static void _requestEvent();
