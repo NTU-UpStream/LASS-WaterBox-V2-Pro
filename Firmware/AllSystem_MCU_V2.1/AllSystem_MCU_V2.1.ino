@@ -137,7 +137,7 @@ void loop(void)
     Serial.println(Menu.pmu_turb());
     Serial.println(Menu.pmu_volt());
     Serial.println(Menu.pmu_current());
-//    setPMU("SLEEP");
+    setPMU("SLEEP");
   }
   else {
     Menu.runMenu();
