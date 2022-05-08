@@ -17,13 +17,21 @@ SIM7000 NBIOT;
 #define Port_LASS   1883
 #define MQTT_LASS_Topic "LASS/Test/WaterBox_TW/"
 
-String _Data;
-String AT_Buffer;
+#define MSG_Init "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1"
 
-String id_str, topic_str, msg_str;
-String _buffer_str;
+// String _Data;
+// String AT_Buffer;
 
-byte MQTT_MSG[300] = {0};
+// String id_str, topic_str, msg_str;
+// String _buffer_str;
+
+
+char STR_BUFFER[20];
+
+char MQTT_TOPIC[35]={'\0'};  // LASS/Test/WaterBox_TW/8c882b00d4c6
+char MQTT_ID[18]={'\0'};
+char MQTT_MSG[300] = {'\0'};
+
 byte MQTT_CONNECT[64] = {0};
 
 uint32_t MQTT_PL = 0;
@@ -127,6 +135,7 @@ void setup()
   PMU.Sleep();
 
   radom_str = (String)"_" + (char)random(65, 90) + (char)random(65, 90) + (char)random(97, 122) + (char)random(97, 122);
+
 }
 
 void loop()
@@ -135,22 +144,27 @@ void loop()
   {
     //    showConfig();
 
+    // 建立Topic
+    memset(MQTT_TOPIC, '\0', 35); // 清空 Topic Buffer
+    strcat(MQTT_TOPIC, MQTT_LASS_Topic);
+    PMU.Field_3.toCharArray(STR_BUFFER,PMU.Field_3.length() + 1);
+    strcat(MQTT_TOPIC, STR_BUFFER);
+
     // 建立 從Field 建立ID 的String
     id_str = PMU.Field_3 + radom_str;
-    id_str.toCharArray(CONNECT_KPG.ID, id_str.length() + 1);       // 把 ID 轉為char array
+
+    memset(MQTT_ID, '\0', 18); // 清空 ID Buffer
+    strcat(MQTT_ID, STR_BUFFER);
+    radom_str.toCharArray(STR_BUFFER,radom_str.length() + 1);
+    strcat(MQTT_ID, STR_BUFFER);
+
     
-    CONNECT_KPG.PL_id[0] = msg_str.length() / 256;
-    CONNECT_KPG.PL_id[1] = msg_str.length() % 256;
+    // id_str.toCharArray(CONNECT_KPG.ID, id_str.length() + 1);       // 把 ID 轉為char array
 
-    MQTT_PL = 2 + id_str.length();                      // 計算RL長度 = 2+PL(Topic)+2+PL(Payload)
-    CONNECT_KPG.RL_size =  CalculateRL(MQTT_PL);        // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
-    memcpy(CONNECT_KPG.RL, MQTT_RL, 4);                 // 把MQTT_RL 這個Buffer 複製到PUBLIC_KPG裡面
-
-
-    topic_str = MQTT_LASS_Topic + PMU.Field_3;
-    topic_str.toCharArray(PUBLISH_KPG.TOPIC, topic_str.length() + 1); // 把 TOPIC 轉為char array
-    PUBLISH_KPG.PL_topic[0] = topic_str.length() / 256;
-    PUBLISH_KPG.PL_topic[1] = topic_str.length() % 256;
+    // topic_str = MQTT_LASS_Topic + PMU.Field_3;
+    // topic_str.toCharArray(PUBLISH_KPG.TOPIC, topic_str.length() + 1); // 把 TOPIC 轉為char array
+    // PUBLISH_KPG.PL_topic[0] = topic_str.length() / 256;
+    // PUBLISH_KPG.PL_topic[1] = topic_str.length() % 256;
 
     // 把要傳送封包(LASS 格式), 打包成String
     // msg_str = "|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date=2019-03-21|time=06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.70|bat_a=400.00|";
@@ -168,10 +182,22 @@ void loop()
     msg_str.concat(F("|bat_a="));     msg_str.concat(PMU.Field_11);
     msg_str.concat(F("|"));
 
-    Serial.println(id_str);
-    Serial.println(topic_str);
+    Serial.println("[Device ID-1]");
+    Serial.println(MQTT_ID);
+
+    Serial.println("[TOPIC-2]");
+    Serial.println(MQTT_TOPIC);
+
+    Serial.println("[MQTT MSG]");    
     Serial.println(msg_str);
 
+
+    CONNECT_KPG.PL_id[0] = msg_str.length() / 256;
+    CONNECT_KPG.PL_id[1] = msg_str.length() % 256;
+
+    MQTT_PL = 2 + id_str.length();                      // 計算RL長度 = 2+PL(Topic)+2+PL(Payload)
+    CONNECT_KPG.RL_size =  CalculateRL(MQTT_PL);        // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
+    memcpy(CONNECT_KPG.RL, MQTT_RL, 4);                 // 把MQTT_RL 這個Buffer 複製到PUBLIC_KPG裡面
 
     // 把LASS封包(String) 塞到Char Buffer當中
     msg_str.toCharArray(PUBLISH_KPG.MSG, msg_str.length() + 1);       // 把 MSG 轉為char array
@@ -184,7 +210,7 @@ void loop()
 
     // 把TOPIC內容show 出來，確認內容是否ＯＫ
     showByteBuffer(PUBLISH_KPG.TOPIC, topic_str.length() + 6);
-    
+
   /*  
     // 把MSG內容show 出來，確認內容是否ＯＫ
     showByteBuffer(PUBLISH_KPG.MSG, msg_str.length() + 1);
@@ -206,7 +232,9 @@ void loop()
     
     NBIOT.AT_end();
     NBIOT.closeNetwork();
-    PMU.Sleep();
+
     */
+
+    PMU.Sleep();
   }
 }
