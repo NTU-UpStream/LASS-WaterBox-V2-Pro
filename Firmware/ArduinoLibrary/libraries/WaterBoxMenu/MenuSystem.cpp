@@ -2580,6 +2580,7 @@ int MenuSystem::SPI_select(SPI_device device){
             waterbox_oled->begin();
             break;
     }
+    return 0;
 };
 
 void MenuSystem::export_json_to_sd(bool serialize){

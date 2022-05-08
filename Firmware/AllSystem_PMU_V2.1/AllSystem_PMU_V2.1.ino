@@ -172,6 +172,7 @@ void loop()
     Serial.println(topic_str);
     Serial.println(msg_str);
 
+
     // 把LASS封包(String) 塞到Char Buffer當中
     msg_str.toCharArray(PUBLISH_KPG.MSG, msg_str.length() + 1);       // 把 MSG 轉為char array
     PUBLISH_KPG.PL_msg[0] = msg_str.length() / 256;
@@ -184,6 +185,7 @@ void loop()
     // 把TOPIC內容show 出來，確認內容是否ＯＫ
     showByteBuffer(PUBLISH_KPG.TOPIC, topic_str.length() + 6);
     
+  /*  
     // 把MSG內容show 出來，確認內容是否ＯＫ
     showByteBuffer(PUBLISH_KPG.MSG, msg_str.length() + 1);
 
@@ -205,5 +207,6 @@ void loop()
     NBIOT.AT_end();
     NBIOT.closeNetwork();
     PMU.Sleep();
+    */
   }
 }
