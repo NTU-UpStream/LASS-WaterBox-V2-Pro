@@ -198,7 +198,6 @@ void loop()
     NBIOT.AT_CMD(F("AT+CIFSR"), true);                     // 取得IP
     delay(1500);
 
-
     AT_Buffer = (String)"AT+CIPSTART=\"TCP\",\"" + Server_LASS + "\",\"" + String(Port_LASS) + "\"";
     NBIOT.AT_CMD(AT_Buffer, true);                         // 啟動 TCP 連線
     delay(2000);

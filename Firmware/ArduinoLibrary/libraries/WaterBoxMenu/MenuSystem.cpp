@@ -2671,13 +2671,13 @@ String MenuSystem::pmu_time(){
 
 String MenuSystem::pmu_lon(){
     char command_longitude[15];
-    sprintf(command_longitude, "F4,%11.6f", longitude);
+    sprintf(command_longitude, "F4,%3.6f", longitude);
     return String(command_longitude);
 };
 
 String MenuSystem::pmu_lat(){
     char command_latitude[14];
-    sprintf(command_latitude, "F5,%10.6f", latitude);
+    sprintf(command_latitude, "F5,%2.6f", latitude);
     return String(command_latitude);
 };
 
@@ -2696,7 +2696,7 @@ String MenuSystem::pmu_ec(){
     delay(900);
     ec_sensor->receive_read_cmd();
     now_ec = ec_sensor->get_last_received_reading();
-    sprintf(command_ec, "F6,%9.2f", now_ec);
+    sprintf(command_ec, "F6,%.2f", now_ec);
     delay(100);
     return String(command_ec);
 };
@@ -2716,7 +2716,7 @@ String MenuSystem::pmu_ph(){
     delay(900);
     pH_sensor->receive_read_cmd();
     now_ph = pH_sensor->get_last_received_reading();
-    sprintf(command_ph, "F7,%5.2f", now_ph);
+    sprintf(command_ph, "F7,%.2f", now_ph);
     delay(100);
     return String(command_ph);
 };
@@ -2731,7 +2731,7 @@ String MenuSystem::pmu_temp(){
         temp_sensor->receive_read_cmd();
         temp_cache = temp_sensor->get_last_received_reading();
     };
-    sprintf(command_temp, "F8,%6.2f", temp_cache);
+    sprintf(command_temp, "F8,%.2f", temp_cache);
     delay(100);
     return String(command_temp);
 };
@@ -2739,20 +2739,20 @@ String MenuSystem::pmu_temp(){
 String MenuSystem::pmu_turb(){
     char command_turb[12];
     update_button_knob();
-    sprintf(command_turb, "F9,%8.2f", turb_sensor->get_value((float)sen_L*4/1000));
+    sprintf(command_turb, "F9,%.2f", turb_sensor->get_value((float)sen_L*4/1000));
     return String(command_turb);
 };
 
 String MenuSystem::pmu_volt(){
     char command_volt[9];
-    sprintf(command_volt, "F10,%4.2f", ina219->getBusVoltage_V());
+    sprintf(command_volt, "F10,%.2f", ina219->getBusVoltage_V());
     delay(50);
     return String(command_volt);
 };
 
 String MenuSystem::pmu_current(){
     char command_mA[12];
-    sprintf(command_mA, "F11,%7.2f", ina219->getCurrent_mA());
+    sprintf(command_mA, "F11,%.2f", ina219->getCurrent_mA());
     delay(50);
     return String(command_mA);
 };
