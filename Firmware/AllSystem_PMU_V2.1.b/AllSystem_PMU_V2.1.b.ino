@@ -225,18 +225,18 @@ void loop(void)
 
 
     /*********** 封包內容印出來確認(不要刪) ***********/
-     Serial.println("[ID-"+String(_loop_count)+"]");
-     Serial.print("\t");
-     Serial.print(strlen(CONNECT_KPG.ID));
-     Serial.print(" -> ");
-     Serial.println(CONNECT_KPG.ID);
+//     Serial.println("[ID-"+String(_loop_count)+"]");
+//     Serial.print("\t");
+//     Serial.print(strlen(CONNECT_KPG.ID));
+//     Serial.print(" -> ");
+//     Serial.println(CONNECT_KPG.ID);
 
     /*********** 檢查 PUBLISH_KPG.TOPIC 內容(不要刪) ***********/
-     Serial.println("[TOPIC-"+String(_loop_count)+"]");
-     Serial.print("\t");
-     Serial.print(strlen(PUBLISH_KPG.TOPIC));
-     Serial.print(" -> ");
-     Serial.println(PUBLISH_KPG.TOPIC);
+//     Serial.println("[TOPIC-"+String(_loop_count)+"]");
+//     Serial.print("\t");
+//     Serial.print(strlen(PUBLISH_KPG.TOPIC));
+//     Serial.print(" -> ");
+//     Serial.println(PUBLISH_KPG.TOPIC);
 
     // for(byte _i=0;_i<strlen(PUBLISH_KPG.TOPIC);_i++){
     //   CharToHexStr(PUBLISH_KPG.TOPIC[_i],true);
@@ -329,34 +329,47 @@ void loop(void)
     Serial.println(F("[ >> ] Sending Data"));
 
     /********** < 逐一輸出 CONNECT_KPG 內容 > *********/
+    // 順序很重要：
     Serial.println(F("\r\n[MQTT Concnet Package]"));
+    /*
+     順序很重要：
+     1.FixHeader
+     2.RL
+     3.Protocol
+     4.Connect flags
+     5.KeepAlive
+     6.Client ID
+     7.User
+     8.Password
+    */
 
+    // 1.FixHeader
     NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.Fix_Header));
     NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
 
+    // 2.RL
     for (uint8_t _i = 0; _i < CONNECT_KPG.RL_size; _i++) {
       NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.RL[_i]));
       NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
     }
-
-    NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.Flags));
-    NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
-
+    // 3.Protocol
     for (uint8_t _i = 0; _i < 7; _i++) {
       NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.Protocol[_i]));
       NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
     }
-
+    // 4.Connect flags
+    NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.Flags));
+    NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
+    // 5.KeepAlive
     for (uint8_t _i = 0; _i < 2; _i++) {
       NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.KeepAlive[_i]));
       NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
     }
-
+    // 6.Client ID
     for (uint8_t _i = 0; _i < 2; _i++) {
       NBIOT.AT_print(ByteToHexStr(CONNECT_KPG.PL_id[_i]));
       NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);
     }
-
     for (uint8_t _i = 0; _i < strlen(CONNECT_KPG.ID); _i++) {
       NBIOT.AT_print(CharToHexStr(CONNECT_KPG.ID[_i]));
       NBIOT.AT_print(F(" ")); delay(SIMCOM_MS);

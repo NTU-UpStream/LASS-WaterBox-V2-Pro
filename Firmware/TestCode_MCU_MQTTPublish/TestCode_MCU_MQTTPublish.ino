@@ -6,8 +6,8 @@
 */
 
 #include <LWiFi.h>
-#define WifiSSID "KyleiPhoneXR" //  your network SSID (name)
-#define WifiPW "11115555"       // your network password (use for WPA, or use as key for WEP)
+#define WifiSSID "GAIA" //  your network SSID (name)
+#define WifiPW "72956799"       // your network password (use for WPA, or use as key for WEP)
 WiFiClient client;
 int status = WL_IDLE_STATUS;
 
