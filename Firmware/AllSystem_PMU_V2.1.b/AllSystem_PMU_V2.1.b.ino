@@ -322,7 +322,7 @@ void loop(void)
     delay(1500);
 
     NBIOT.openNetwork(Server_LASS, Port_LASS);             // 開啟 TCP 連線
-    delay(1000);
+    delay(10000);
 
 
     NBIOT.AT_CMD("AT+CIPSEND", true);     // 開始傳輸內容, Concnet 及 publish 一起送
@@ -410,7 +410,7 @@ void loop(void)
     delay(100);
 
     NBIOT.AT_end(); // 發送封包
-    delay(2000);
+    delay(1000);
 
     NBIOT.closeNetwork(); // 關閉網路
 
