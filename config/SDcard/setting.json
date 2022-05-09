@@ -1,0 +1,18 @@
+{
+    "WiFi": {
+        "WiFi_SSID": "",
+        "WiFi_PW": ""
+    },
+    "NBIOT": {
+        "APN": ""
+    },
+    "MQTT": {
+        "MQTT_Broker": "",
+        "MQTT_User": "",
+        "MQTT_PassWord": ""
+    },
+    "coordinate": {
+        "longitude": 121.536792,
+        "latitude": 25.016375
+    }
+}
