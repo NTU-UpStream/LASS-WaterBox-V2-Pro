@@ -379,12 +379,15 @@ void setup() {
   //  Serial.println(DeviceID.length(), HEX);
 
   // 以下待確認
-  String id_str = DeviceID + "_" + (char)random(65, 90) + (char)random(65, 90) + (char)random(97, 122) + (char)random(97, 122);
-  String topic_str = MQTT_LASS_Topic + DeviceID;
+//  String id_str = DeviceID + "_" + (char)random(65, 90) + (char)random(65, 90) + (char)random(97, 122) + (char)random(97, 122);
+//  String topic_str = MQTT_LASS_Topic + DeviceID;
 
   //  String msg_str = (String)"{\"Device\":\"WaterBoxPro\",\"Ver\":2.2,\"FT\":\"UpStream\",\"DateTime\":\"2022-03-02\"}";
-  String msg_str = (String)"|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date = 2019-03-21|time = 06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00";
-
+  //  String msg_str = (String)"|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date = 2019-03-21|time = 06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00";
+  
+  String id_str = "8c882b00d4c6_IXyh";
+  String topic_str = "LASS/Test/WaterBox_TW/8c882b00d4c6";
+  String msg_str = "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1|date=2022-03-10|time=23:00:00|device_id=8c882b00d4c6|gps_lon=-123.222222|gps_lat=-25.193323|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.71|bat_a=-400.00|";
   //  Serial.print("[MQTT] Add random symbols: ");
   //  Serial.print(id_str);
   //  Serial.print("\t");
@@ -397,9 +400,9 @@ void setup() {
 
   Serial.print("[CONTENT] ID: "); Serial.println(client_id.Content);
   CONNECT_KPG.ID =  &client_id;
-  MQTT_PL = 10 + 2 + id_str.length(); //計算RL長度 = 10+2+PL(ID)
+  MQTT_PL = 10 + 2 + id_str.length();           //計算RL長度 = 10+2+PL(ID)
   CONNECT_KPG.RL_size =  CalculateRL(MQTT_PL);  // 計算RL 用掉幾個bytes，並更新MQTT_RL 這個Buffer
-  memcpy(CONNECT_KPG.RL, MQTT_RL, 4);  // 把MQTT_RL 這個Buffer 複製到PUBLIC_KPG裡面
+  memcpy(CONNECT_KPG.RL, MQTT_RL, 4);           // 把MQTT_RL 這個Buffer 複製到PUBLIC_KPG裡面
 
   Serial.print("[CONTENT] Publish Payload: "); Serial.println(mqtt_topic.Content);
   // 打飽 publish 封包內容, RL 放4bytes, 要傳之前再看實際的大小塞進Buffer內？？

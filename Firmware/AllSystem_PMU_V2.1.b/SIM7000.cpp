@@ -51,6 +51,9 @@ void SIM7000::setAPN(APN _apnID) {
     case fet_NB:
       _APN = "nbiot";
       break;
+    case fet_icshop:
+      _APN = "iot4ga2";
+      break;
     case twm_NB:
       _APN = "twm.nbiot";
       break;
@@ -80,6 +83,7 @@ void SIM7000::OFF()
 {
   _waitingSec = 1;
   digitalWrite(_PowerPin, LOW);
+
   _Debuger(F("Power OFF, Waiting "), H_NBIOT, NONE);
   _Debuger(String(_waitingSec), NONE, NONE);
   _Debuger(F(" sec.."), NONE, EOL);
@@ -155,10 +159,10 @@ void SIM7000::_AT(String _cmd)
 String SIM7000::_ATReceive()
 {
   ResString = "";
-  delay(1000);
-
-  _Debuger(F("AT Buffer -> Rece : "),H_NBIOT,NONE);
-  _Debuger(String(_ATSerial.available()),NONE,NONE);
+  delay(2000);
+  // 顯示有多少char 可以接收
+//  _Debuger(F("AT Buffer -> Rece : "),H_NBIOT,NONE);
+//  _Debuger(String(_ATSerial.available()),NONE,NONE);
 
   while (_ATSerial.available())
   {
@@ -166,8 +170,8 @@ String SIM7000::_ATReceive()
     ResString += (String)_cRead;
   }
   
-  _Debuger(F(" -> "),NONE,NONE);
-  _Debuger(String(ResString.length()),NONE,EOL);
+//  _Debuger(F(" -> "),NONE,NONE);
+//  _Debuger(String(ResString.length()),NONE,EOL);
   
   return ResString;
 }
@@ -239,17 +243,7 @@ String SIM7000::_slicer(String _msg, String _mark, uint8_t _index)
 
 uint8_t SIM7000::openNetwork(const char* host, int port)
 {
-  AT_CMD(F("AT+CIPSENDHEX=1"), true);               // 設定 TCP/IP的傳輸格式為HEX
-  delay(500);
-  AT_CMD(F("AT+CSTT=\"internet.iot\""), true);     // 設定 APN
-  delay(1500);
-  AT_CMD(F("AT+CIICR"), true);                     // 啟動 TCP 連線
-  delay(1500);
-
-  AT_CMD(F("AT+CIFSR"), true);                     // 啟動 TCP 連線
-  delay(1500);
-
-  _ATSerial.print(F("AT+CIPSTART=\"TCP\",\""));
+  _ATSerial.print(F("AT+CIPSTART=\"TCP\",\"")); // 開起TCP
   _ATSerial.print(host);
   _ATSerial.print(F("\",\""));
   _ATSerial.print(port, DEC);

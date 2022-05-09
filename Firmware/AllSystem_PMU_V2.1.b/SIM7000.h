@@ -2,8 +2,8 @@
 #ifndef _SIMCOM7000E_H_
 #define _SIMCOM7000E_H_
 
-#define   AT_Rx       8
-#define		AT_Tx				9
+#define   AT_Rx       9
+#define		AT_Tx				8
 #define		AT_rate			9600
 
 class SIM7000
@@ -22,6 +22,7 @@ class SIM7000
       cht_NB,
       cht_4G,
       fet_NB,
+      fet_icshop,
       twm_4G,
       twm_NB
     };
