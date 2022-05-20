@@ -20,7 +20,7 @@ byte mac[6];
 const uint8_t SD_CHIP_SELECT = 4;
 
 #define cmd_setAPN       "APN,iot4ga2"
-#define cmd_setSleepTime "TIME,10"
+#define cmd_setSleepTime "TIME,300"
 #define cmd_setLowPower  "LOWPOWER,1" // 1 為啟動睡眠, 0 為不睡覺
 
 /***** << OLED library: u8g2 >> *****/
@@ -131,17 +131,6 @@ void loop(void)
     setPMU(cmd_setAPN);
     setPMU(cmd_setSleepTime);
     setPMU(cmd_setLowPower);
-    
-    Serial.println(Menu.pmu_date());
-    Serial.println(Menu.pmu_time());
-    Serial.println(Menu.pmu_lon());
-    Serial.println(Menu.pmu_lat());
-    Serial.println(Menu.pmu_ec());
-    Serial.println(Menu.pmu_ph());
-    Serial.println(Menu.pmu_temp());
-    Serial.println(Menu.pmu_turb());
-    Serial.println(Menu.pmu_volt());
-    Serial.println(Menu.pmu_current());
     setPMU("SLEEP");
   }
   else {
