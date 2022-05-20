@@ -321,7 +321,7 @@ void loop(void)
     NBIOT.AT_CMD(F("AT+CIFSR"), true);                     // 取得IP: 測試用
     delay(1500);
 
-    NBIOT.openNetwork(Server_LASS, Port_LASS);             // 開啟 TCP 連線
+    NBIOT.openNetwork(Server_LASS, Port_LASS);             // 開啟 TCP 連線，預留10秒緩衝
     delay(10000);
 
 
