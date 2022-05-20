@@ -30,6 +30,7 @@ U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ OLED_CS, /* dc=*/ 
 
 //Important Object initialize
 extern MenuPage Main_page;
+
 DS3231M_Class Clock;
 Ezo_board pH = Ezo_board(99, "PH");
 Ezo_board EC = Ezo_board(100, "EC");
@@ -38,6 +39,7 @@ Dfrobot_Turbidity TURB = Dfrobot_Turbidity();
 Adafruit_ADS1015 ads1115;
 Adafruit_INA219 ina219;
 SdFat SDcard;
+
 MenuSystem Menu {
   &Main_page,
   &pH, &EC, &TEMP, &TURB,
@@ -90,6 +92,7 @@ void setup(void)
 {
   Wire.setClock(50000);
   Serial.begin(9600);
+  
   digitalWrite(modulePower, HIGH);        //Open all module
   pinMode(SDA, INPUT_PULLUP);
   pinMode(sensorSwitch, INPUT_PULLUP);
@@ -98,6 +101,7 @@ void setup(void)
   pinMode(LORA_CS, OUTPUT);
   pinMode(SD_CS, OUTPUT);
   pinMode(OLED_CS, OUTPUT);
+
   digitalWrite(LORA_CS, HIGH);
   digitalWrite(SD_CS, HIGH);
   digitalWrite(OLED_CS, LOW);
@@ -137,7 +141,7 @@ void loop(void)
     Serial.println(Menu.pmu_turb());
     Serial.println(Menu.pmu_volt());
     Serial.println(Menu.pmu_current());
-//    setPMU("SLEEP");
+    setPMU("SLEEP");
   }
   else {
     Menu.runMenu();

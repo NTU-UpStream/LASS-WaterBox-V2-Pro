@@ -93,6 +93,7 @@ void setup(void)
   Wire.setClock(50000);
   Serial.begin(9600);
   
+  digitalWrite(modulePower, HIGH);        //Open all module
   pinMode(SDA, INPUT_PULLUP);
   pinMode(sensorSwitch, INPUT_PULLUP);
   pinMode(modulePower, OUTPUT);
@@ -101,7 +102,6 @@ void setup(void)
   pinMode(SD_CS, OUTPUT);
   pinMode(OLED_CS, OUTPUT);
 
-  digitalWrite(modulePower, HIGH);        //Open all module
   digitalWrite(LORA_CS, HIGH);
   digitalWrite(SD_CS, HIGH);
   digitalWrite(OLED_CS, LOW);

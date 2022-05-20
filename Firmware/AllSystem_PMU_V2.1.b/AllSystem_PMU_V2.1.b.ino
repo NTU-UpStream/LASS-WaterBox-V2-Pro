@@ -3,7 +3,6 @@
   Created: 2020/3/10 下午 07:28:01
   Author:  Liu
 */
-#include <Adafruit_INA219.h> // 1.0.6
 #include "WaterBox_PMU.h"
 WaterBox_PMU PMU;
 
@@ -167,7 +166,13 @@ void setup(void)
 
   Serial.println(F("[System] Setup Done"));
   // 先睡一次，讓MCU 取得資料並且紀錄
+  
   PMU.Sleep();
+
+  
+  Serial.begin(9600);
+  Serial.println(PMU.Volate);
+  Serial.println(PMU.Current);
 
   radom_str = (String)"_" + (char)random(65, 90) + (char)random(65, 90) + (char)random(97, 122) + (char)random(97, 122);
 }
@@ -214,9 +219,11 @@ void loop(void)
     strcat(PUBLISH_KPG.MSG, "|s_Tb=");
     if (Flash_STR_BUFFER(PMU.Field_9))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
     strcat(PUBLISH_KPG.MSG, "|bat_v=");
+    
     if (Flash_STR_BUFFER(PMU.Field_10))  strcat(PUBLISH_KPG.MSG, STR_BUFFER);
     strcat(PUBLISH_KPG.MSG, "|bat_a=");
     if (Flash_STR_BUFFER(PMU.Field_11))  strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    
     if (Flash_STR_BUFFER("|"))           strcat(PUBLISH_KPG.MSG, STR_BUFFER);
 
 
@@ -418,4 +425,7 @@ void loop(void)
 
     PMU.Sleep();
   }
+//  else{
+//    PMU.ControlPower(PMU.ON); // 一直開啟INA219的電源
+//  }
 }

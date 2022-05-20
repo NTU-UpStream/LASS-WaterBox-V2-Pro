@@ -109,6 +109,7 @@ uint8_t WaterBox_PMU::Sleep(STATE _type = SLAVER) {
 
   digitalWrite(LED_BUILTIN, LOW);
   ControlPower(OFF);                // 關閉MCU電源
+  digitalWrite(_CrtlPinINA219, LOW); // 關閉INA219電源
 
   _Deguber(F("Enter SLEEP Mode"), H_PMU, EOL);
   delay(100);
@@ -122,9 +123,9 @@ uint8_t WaterBox_PMU::Sleep(STATE _type = SLAVER) {
   state = MASTER;
   _Deguber(F("Waker up, init I2C with Master and get bettery state..."), H_PMU, EOL);
 
-  //  ControlPower(ON);  // 開啟主電源，測量系統供電狀態
+//  ControlPower(ON);  // 開啟主電源，測量系統供電狀態
   getBetteryState();
-  //  ControlPower(OFF);
+//  ControlPower(OFF);
 
   // 確認電池電壓是否足夠，低於限值則回傳True
   if (Volate < _WakeUpVoltage)
@@ -140,6 +141,7 @@ uint8_t WaterBox_PMU::Sleep(STATE _type = SLAVER) {
     {
       _Deguber(F(" I2C --> Slaver"), H_PMU, EOL);
       _SwitchToSlaver(_Addr);
+      digitalWrite(_CrtlPinINA219, HIGH);  // 等待 MCU 取得資料並設定INA219 -> MCU 會跟INA219拿資料，所以開啟電源
       ControlPower(ON);
     }
     return 0;
