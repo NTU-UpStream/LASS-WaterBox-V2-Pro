@@ -2006,9 +2006,9 @@ void MenuSystem::Turbidity_value(int update_level){
         case PASSIVE_update:
         case CHOSEN_update:{
             if(strcmp(&(Current->text[0][16]), " ON")==0){
-                sprintf(&(Current->title[0]), "Turb%8.2fNTU", turb_sensor->get_value((float)sen_L*4/1000));
+                sprintf(&(Current->title[0]), "Turb%8.2fNTU", turb_sensor->get_value((float)sen_L/4));
                 Serial.print("Turb :");
-                Serial.println(turb_sensor->get_value((float)sen_L*4/1000));
+                Serial.println(turb_sensor->get_value((float)sen_L/4));
             };
             if(strcmp(&(Current->text[0][16]), "OFF")==0){
                 sprintf(&(Current->title[0]), "Turbidity Sensor");
@@ -2085,7 +2085,7 @@ void MenuSystem::Turbidity_Cal_low(int update_level){
             delay(10);
             read_adc(ads1015, &knob_L, &knob_R, &sen_L, &sen_R);
             float cal_turb_ntu = atoi(&(Current->text[1][17]))*100 + atoi(&(Current->text[2][17])) + atof(&(Current->text[3][15]));
-            turb_sensor->calibrate_low(cal_turb_ntu, (float)sen_L*4/1000);           
+            turb_sensor->calibrate_low(cal_turb_ntu, (float)sen_L/4);           
             break;
     }
 };
@@ -2105,7 +2105,7 @@ void MenuSystem::Turbidity_Cal_high(int update_level){
             delay(10);
             read_adc(ads1015, &knob_L, &knob_R, &sen_L, &sen_R);
             float cal_turb_ntu = atoi(&(Current->text[1][17]))*100 + atoi(&(Current->text[2][17])) + atof(&(Current->text[3][15]));
-            turb_sensor->calibrate_high(cal_turb_ntu, (float)sen_L*4/1000);           
+            turb_sensor->calibrate_high(cal_turb_ntu, (float)sen_L/4);           
             break;
     }
 };
@@ -2191,7 +2191,7 @@ void MenuSystem::Turbidity2_Turbidity(int update_level){
      * It's here because we don't need a line of text on menu for it.
     ********************************************************************/
     if(strlen(&(Current->title[0])) > 17){
-        sprintf(&(Current->title[0]), "Turb%8.2fNTU", abs(turb_sensor->get_value((float)sen_L*4/1000)));
+        sprintf(&(Current->title[0]), "Turb%8.2fNTU", abs(turb_sensor->get_value((float)sen_L/4)));
     }
 };
 
@@ -2740,7 +2740,7 @@ String MenuSystem::pmu_temp(){
 String MenuSystem::pmu_turb(){
     char command_turb[12];
     update_button_knob();
-    sprintf(command_turb, "F9,%.2f", turb_sensor->get_value((float)sen_L*4/1000));
+    sprintf(command_turb, "F9,%.2f", turb_sensor->get_value((float)sen_L/4));
     return String(command_turb);
 };
 
