@@ -158,7 +158,7 @@ void setup(void)
   NBIOT.init(SIMCOM);
 
   PMU.init();
-  //  PMU.setDebuger(Serial);
+  PMU.setDebuger(Serial);
   PMU.setSleepSec(2);
   PMU.setWakeUpVolate(3.2);
   PMU.PowerSaveMode(PMU.ON); // PMU.ON進入睡眠, Delay不睡覺 PMU.OFF

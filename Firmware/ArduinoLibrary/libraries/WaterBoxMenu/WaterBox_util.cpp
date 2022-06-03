@@ -3,6 +3,7 @@
 #include <Ezo_i2c_util.h>
 #include <Ezo_i2c.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 void ezo_read(Ezo_board &sensor){
     sensor.send_read_cmd();
@@ -244,6 +245,43 @@ bool checkdate(int y, int m, int d)
  
   return true;
 }
+
+void EEPROM_read(char* buffer, int _page = 0, int _length = 31) // 讀取資料，1頁 30 bytes
+{
+  int _address = _page * 32;
+  char _str;
+
+  if (_length > 31) {                         // 超出頁面
+    Serial.println("Out Of Pages");
+  }
+  else {
+    for ( int _i = 0; _i < _length; _i++ ) {
+      _str = EEPROM.read(_address + _i);
+//      Serial.print(_i);
+//      Serial.print(":\t");
+//      Serial.println(_str);
+      buffer[_i] = _str;
+    }
+  }
+} // end of EEPROM_read()
+
+bool EEPROM_write(char* _str, int _page, int _length) // 寫入資料，1頁 32 bytes
+{
+  int _address = _page * 32;
+  if (_length > 31) {                // 超出頁面
+    Serial.println("Out Of Pages");
+    return false;
+  }
+  else {
+    Serial.print("Writing data：");
+    for ( int _i = 0; _i < _length; _i++ ) {
+      EEPROM.update(_i, _str[_i]);
+      Serial.print(_str[_i]);
+    }
+    Serial.println();
+    return true;
+  } // end if
+} // end of EEPROM_write()
 
 
 

@@ -20,7 +20,7 @@ byte mac[6];
 const uint8_t SD_CHIP_SELECT = 4;
 
 #define cmd_setAPN       "APN,iot4ga2"
-#define cmd_setSleepTime "TIME,300"
+#define cmd_setSleepTime "TIME,180"
 #define cmd_setLowPower  "LOWPOWER,1" // 1 為啟動睡眠, 0 為不睡覺
 
 /***** << OLED library: u8g2 >> *****/
@@ -121,15 +121,15 @@ void loop(void)
     setPMU(Menu.pmu_time());
     setPMU(Menu.pmu_lon());
     setPMU(Menu.pmu_lat());
+    setPMU(Menu.pmu_temp());    //Request Temperature first can fill up the temp_cache variable that allow ec and ph to compensate directly without extra measurement.
     setPMU(Menu.pmu_ec());
     setPMU(Menu.pmu_ph());
-    setPMU(Menu.pmu_temp());
     setPMU(Menu.pmu_turb());
     setPMU(Menu.pmu_volt());
     setPMU(Menu.pmu_current());
     setPMU("F3,"+MacAddress());
-    setPMU(cmd_setAPN);
-    setPMU(cmd_setSleepTime);
+    setPMU(Menu.pmu_APN());
+    setPMU(Menu.pmu_sleeptime());
     setPMU(cmd_setLowPower);
     setPMU("SLEEP");
   }

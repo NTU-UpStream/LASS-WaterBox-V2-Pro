@@ -98,6 +98,8 @@ class MenuSystem{
 
         float longitude;
         float latitude;
+        char APN[32];
+        int interval;
 
         float temp_cache;
 
@@ -179,6 +181,7 @@ class MenuSystem{
         void EC3_export(int);
         void EC3_WB_default_setting(int);
         void EC3_factory_setting(int);
+        void EC3_enable_all(int);
         void EC_root(int);
 
         void Temp_value(int);
@@ -281,6 +284,8 @@ class MenuSystem{
         String pmu_turb();
         String pmu_volt();
         String pmu_current();
+        String pmu_APN();
+        String pmu_sleeptime();
 };
 
 #endif

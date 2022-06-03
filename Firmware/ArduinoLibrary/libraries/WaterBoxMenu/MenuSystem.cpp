@@ -104,9 +104,9 @@ MenuPage EC2_page {
 };
 
 char EC3_title[20] = "EC Sensor";
-char EC3_text[10][20] = {"Last Page", "Status   Vcc:", "Restart code:", "Import setting", "Export setting", "Factory Setting"};
+char EC3_text[10][20] = {"Last Page", "Status   Vcc:", "Restart code:", "Import setting", "Export setting", "Factory Setting", "Enable all"};
 MenuFunc EC3_funcs[10] = {&MenuSystem::EC3_EC2, &MenuSystem::EC3_Vcc, &MenuSystem::EC3_status_restart_code, &MenuSystem::EC3_import,
-                          &MenuSystem::EC3_export, &MenuSystem::EC3_factory_setting};
+                          &MenuSystem::EC3_export, &MenuSystem::EC3_factory_setting, &MenuSystem::EC3_enable_all};
 MenuPage EC3_page {
     &MenuSystem::EC_root,
     EC3_title,
@@ -222,11 +222,16 @@ MenuPage::MenuPage(MenuFunc Rootfunc_in, char title_in[20], char text_in[10][20]
 };
 
 void MenuSystem::load_setting(){
+    //Load general setting
     sprintf(file_path_buffer, "setting.json");
     import_sd_to_json();
     longitude = in_export_buffer["coordinate"]["longitude"];
     latitude = in_export_buffer["coordinate"]["latitude"];
+    sprintf(APN, in_export_buffer["NBIOT"]["APN"]);
+    interval = atoi(in_export_buffer["NBIOT"]["Interval"]);
     in_export_buffer.clear();
+
+    //Load turbidity setting
     sprintf(file_path_buffer, "Turbidity/turb_current.json");
     import_sd_to_json();
     float load_coef = in_export_buffer["coef"];
@@ -1650,7 +1655,7 @@ void MenuSystem::EC3_WB_default_setting(int update_level){
         case ACTIVATE_update:
             break;
     };
-};
+}
 
 void MenuSystem::EC3_factory_setting(int update_level){
     switch(update_level){
@@ -1660,6 +1665,20 @@ void MenuSystem::EC3_factory_setting(int update_level){
             break;
     }
 };
+
+void MenuSystem::EC3_enable_all(int update_level){
+    switch(update_level){
+        case ACTIVATE_update:
+            delay(600);
+            ec_sensor->send_cmd_with_num("O,TDS,", 1, 0);
+            delay(350);
+            ec_sensor->send_cmd_with_num("O,S,", 1, 0);
+            delay(350);
+            ec_sensor->send_cmd_with_num("O,SG,", 1, 0);
+            delay(350);
+            break;
+    }
+}
 
 void MenuSystem::EC_root(int update_level){
     Current = &Sensor_page;
@@ -2684,11 +2703,12 @@ String MenuSystem::pmu_lat(){
 
 String MenuSystem::pmu_ec(){
     char command_ec[13];
+    Serial.println(temp_cache);
     if(temp_cache == NULL){
         temp_sensor->send_cmd("S,c");
         delay(300);
         temp_sensor->send_read_cmd();
-        delay(300);
+        delay(900);
         temp_sensor->receive_read_cmd();
         temp_cache = temp_sensor->get_last_received_reading();
     };
@@ -2704,11 +2724,12 @@ String MenuSystem::pmu_ec(){
 
 String MenuSystem::pmu_ph(){
     char command_ph[9];
+    Serial.println(temp_cache);
     if(temp_cache == NULL){
         temp_sensor->send_cmd("S,c");
         delay(300);
         temp_sensor->send_read_cmd();
-        delay(300);
+        delay(900);
         temp_sensor->receive_read_cmd();
         temp_cache = temp_sensor->get_last_received_reading();
     };
@@ -2728,10 +2749,11 @@ String MenuSystem::pmu_temp(){
         temp_sensor->send_cmd("S,c");
         delay(300);
         temp_sensor->send_read_cmd();
-        delay(300);
+        delay(900);
         temp_sensor->receive_read_cmd();
         temp_cache = temp_sensor->get_last_received_reading();
     };
+    Serial.println(temp_cache);
     sprintf(command_temp, "F8,%.2f", temp_cache);
     delay(100);
     return String(command_temp);
@@ -2758,3 +2780,19 @@ String MenuSystem::pmu_current(){
     return String(command_mA);
 };
 
+String MenuSystem::pmu_APN(){
+    return String(APN);
+}
+
+String MenuSystem::pmu_sleeptime(){
+    char sleep_command[9];
+    int today_second = DateTime(clock->now().year(), clock->now().month(), clock->now().day()).secondstime();
+    int now_second = clock->now().secondstime();
+    Serial.println(today_second);
+    Serial.println(now_second);
+    Serial.println(interval);
+    Serial.println(interval - (now_second - today_second)%interval);
+
+    sprintf(sleep_command, "TIME,%i", interval - (now_second - today_second)%interval);
+    return String(sleep_command);
+};

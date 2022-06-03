@@ -8,6 +8,7 @@
 #include <Ezo_i2c.h>
 #include <Ezo_i2c_util.h>
 #include <Adafruit_ADS1015.h>
+#include <EEPROM.h>
 
 #define sensorSwitch 6
 #define modulePower 14
@@ -64,5 +65,9 @@ void read_adc(Adafruit_ADS1015* volt_chip, int* knob_L, int* knob_R, int* sen_L,
 int knob_portion(int, int, int);
 void set_clock(DS3231M_Class*, int, int, int, int, int, int);
 bool checkdate(int y, int m, int d);
+
+void EEPROM_read(char*, int, int);
+bool EEPROM_write(char*, int, int);
+
 
 #endif
