@@ -388,73 +388,73 @@ void WaterBox_PMU::_cmd(String _str) {
     _REQUEST = Req_AT;
   }
 
-  if (_str.indexOf(F("F1,")) > -1) {  // 設定ThingSpeak Field 1 的字串
+  if (_str.indexOf(F("F1,")) > -1) {  // 設定欄位1: 設定ThingSpeak Field 1 的字串
     _Deguber(F("Set Field 1>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_1 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F2,")) > -1) {  // 設定ThingSpeak Field 2 的字串
+  if (_str.indexOf(F("F2,")) > -1) {  // 設定欄位2: 設定ThingSpeak Field 2 的字串
     _Deguber(F("Set Field 2>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_2 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F3,")) > -1) {  // 設定ThingSpeak Field 3 的字串
+  if (_str.indexOf(F("F3,")) > -1) {  // 設定欄位3: 設定ThingSpeak Field 3 的字串 / MacAddress
     _Deguber(F("Set Field 3>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_3 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F4,")) > -1) {  // 設定ThingSpeak Field 4 的字串
+  if (_str.indexOf(F("F4,")) > -1) {  // 設定欄位4: 設定ThingSpeak Field 4 的字串
     _Deguber(F("Set Field 4>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_4 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F5,")) > -1) {  // 設定ThingSpeak Field 5 的字串
+  if (_str.indexOf(F("F5,")) > -1) {  // 設定欄位5: 設定ThingSpeak Field 5 的字串
     _Deguber(F("Set Field 5>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_5 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F6,")) > -1) {  // 設定ThingSpeak Field 6 的字串
+  if (_str.indexOf(F("F6,")) > -1) {  // 設定欄位6: 設定ThingSpeak Field 6 的字串
     _Deguber(F("Set Field 6>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_6 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F7,")) > -1) {  // 設定ThingSpeak Field 7 的字串
+  if (_str.indexOf(F("F7,")) > -1) {  // 設定欄位7: 設定ThingSpeak Field 7 的字串
     _Deguber(F("Set Field 7>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_7 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F8,")) > -1) {  // 設定ThingSpeak Field 8 的字串
+  if (_str.indexOf(F("F8,")) > -1) {  // 設定欄位8: ThingSpeak Field 8 的字串
     _Deguber(F("Set Field 8>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_8 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F9,")) > -1) {  // 設定ThingSpeak Field 8 的字串
+  if (_str.indexOf(F("F9,")) > -1) {  // 設定欄位9 or (WaterBoxPro)F10,bat_v
     _Deguber(F("Set Field 9>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_9 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F10,")) > -1) {  // 設定ThingSpeak Field 8 的字串
+  if (_str.indexOf(F("F10,")) > -1) {  // 設定欄位10 or (WaterBoxPro)F10,bat_v
     _Deguber(F("Set Field 10>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_10 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F11,")) > -1) {  // 設定ThingSpeak Field 8 的字串
+  if (_str.indexOf(F("F11,")) > -1) {  //  設定欄位11 or (WaterBoxPro)F11,bat_a
     _Deguber(F("Set Field 11>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_11 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F12,")) > -1) {  // 設定ThingSpeak Field 8 的字串
+  if (_str.indexOf(F("F12,")) > -1) {  //  設定欄位12
     _Deguber(F("Set Field 12>> "), H_CMD);
     _Deguber(_ComStr, NONE, EOL);
     Field_12 = _ComStr;
