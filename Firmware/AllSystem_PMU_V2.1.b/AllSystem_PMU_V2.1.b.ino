@@ -200,35 +200,60 @@ void loop(void)
 
     memset(PUBLISH_KPG.MSG, '\0', MSG_SIZE);
     strcat(PUBLISH_KPG.MSG, MSG_INIT);
-    strcat(PUBLISH_KPG.MSG, "|date=");
-    if (Flash_STR_BUFFER(PMU.Field_1))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|time=");
-    if (Flash_STR_BUFFER(PMU.Field_2))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+ 
+    if (Flash_STR_BUFFER(PMU.Field_1))   {
+      strcat(PUBLISH_KPG.MSG, "|date=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    if (Flash_STR_BUFFER(PMU.Field_2))   {
+      strcat(PUBLISH_KPG.MSG, "|time=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
     
-    strcat(PUBLISH_KPG.MSG, "|device_id=");
-    if (Flash_STR_BUFFER(PMU.Field_3))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    if (Flash_STR_BUFFER(PMU.Field_3))   {
+      strcat(PUBLISH_KPG.MSG, "|device_id=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
 
-    strcat(PUBLISH_KPG.MSG, "|gps_lon=");
-    if (Flash_STR_BUFFER(PMU.Field_4))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|gps_lat=");
-    if (Flash_STR_BUFFER(PMU.Field_5))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    if (Flash_STR_BUFFER(PMU.Field_4))   {
+      strcat(PUBLISH_KPG.MSG, "|gps_lon=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    if (Flash_STR_BUFFER(PMU.Field_5))   {
+      strcat(PUBLISH_KPG.MSG, "|gps_lat=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
 
-    strcat(PUBLISH_KPG.MSG, "|s_ec2=");
-    if (Flash_STR_BUFFER(PMU.Field_6))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|s_ph2=");
-    if (Flash_STR_BUFFER(PMU.Field_7))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|s_t7=");
-    if (Flash_STR_BUFFER(PMU.Field_8))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|s_Tb=");
-
-    if (Flash_STR_BUFFER(PMU.Field_9))   strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|bat_v=");
-    if (Flash_STR_BUFFER(PMU.Field_10))  strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|bat_a=");
-    if (Flash_STR_BUFFER(PMU.Field_11))  strcat(PUBLISH_KPG.MSG, STR_BUFFER);
-    strcat(PUBLISH_KPG.MSG, "|");
-
-    if (Flash_STR_BUFFER(PMU.Field_12))  strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    if (Flash_STR_BUFFER(PMU.Field_6))   {
+      strcat(PUBLISH_KPG.MSG, "|s_ec2=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    if (Flash_STR_BUFFER(PMU.Field_7))   {
+      strcat(PUBLISH_KPG.MSG, "|s_ph2=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    if (Flash_STR_BUFFER(PMU.Field_8))   {
+      strcat(PUBLISH_KPG.MSG, "|s_t7=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    if (Flash_STR_BUFFER(PMU.Field_9))   {
+      strcat(PUBLISH_KPG.MSG, "|s_Tb=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+    }
+    
+    if (Flash_STR_BUFFER(PMU.Field_10))  {
+      strcat(PUBLISH_KPG.MSG, "|bat_v=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+      }
+    if (Flash_STR_BUFFER(PMU.Field_11))  {
+      strcat(PUBLISH_KPG.MSG, "|bat_a=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+      }
+    
+    if (Flash_STR_BUFFER(PMU.Field_12))  {
+      strcat(PUBLISH_KPG.MSG, "|F12=");
+      strcat(PUBLISH_KPG.MSG, STR_BUFFER);
+      }
     strcat(PUBLISH_KPG.MSG, "|");
 
 
