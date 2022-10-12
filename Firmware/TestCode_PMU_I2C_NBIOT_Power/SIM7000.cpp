@@ -1,28 +1,26 @@
 #include "SIM7000.h"
-#ifndef  SoftwareSerial_h
+#ifndef SoftwareSerial_h
 #include <SoftwareSerial.h>
 #endif // SoftwareSerial_h
 
+Stream &SIM7000::_refSerial = Serial;
 
+uint8_t SIM7000::_Rx = AT_Rx;
+uint8_t SIM7000::_Tx = AT_Tx;
 
-Stream& SIM7000::_refSerial = Serial;
-
-uint8_t		SIM7000::_Rx = AT_Rx;
-uint8_t		SIM7000::_Tx = AT_Tx;
-
-uint8_t		SIM7000::_Debug = false;
-String		SIM7000::ResString = "";
-String		SIM7000::_StrBuffer = "";
+uint8_t SIM7000::_Debug = false;
+String SIM7000::ResString = "";
+String SIM7000::_StrBuffer = "";
 
 SoftwareSerial _ATSerial(SIM7000::_Rx, SIM7000::_Tx);
 
-
-SIM7000::SIM7000() {
+SIM7000::SIM7000()
+{
 }
 
-SIM7000::~SIM7000() {
+SIM7000::~SIM7000()
+{
 }
-
 
 void SIM7000::init(uint16_t _pin)
 {
@@ -35,14 +33,16 @@ void SIM7000::begin(uint16_t _rate)
 	_ATSerial.begin(_rate);
 }
 
-void SIM7000::setDebuger(Stream& refSer)
+void SIM7000::setDebuger(Stream &refSer)
 {
 	_Debug = true;
 	_refSerial = refSer;
 }
 
-void SIM7000::setAPN(APN _apnID){
-	switch (_apnID){
+void SIM7000::setAPN(APN _apnID)
+{
+	switch (_apnID)
+	{
 	case cht_4G:
 		_APN = "internet.iot";
 		break;
@@ -57,7 +57,6 @@ void SIM7000::setAPN(APN _apnID){
 		break;
 	}
 }
-
 
 void SIM7000::ON()
 {
@@ -99,8 +98,10 @@ uint8_t SIM7000::AT_CMD(String _cmd, uint8_t _info)
 	return _boolBuffer;
 }
 
-void SIM7000::_Debuger(String _msg, UART _header, UART _uart){
-	if (_Debug) {
+void SIM7000::_Debuger(String _msg, UART _header, UART _uart)
+{
+	if (_Debug)
+	{
 		switch (_header)
 		{
 		case H_NBIOT:
@@ -125,16 +126,17 @@ void SIM7000::_Debuger(String _msg, UART _header, UART _uart){
 			break;
 		}
 	}
-
 }
 
-void SIM7000::_AT(String _cmd){
+void SIM7000::_AT(String _cmd)
+{
 	/*_Debuger(F("Send CMD -> "), H_CMD, NONE);
 	_Debuger(_cmd, NONE, EOL);*/
 	_ATSerial.println(_cmd);
 }
 
-String SIM7000::_ATReceive(){
+String SIM7000::_ATReceive()
+{
 	ResString = "";
 
 	while (_ATSerial.available())
@@ -149,14 +151,18 @@ String SIM7000::_ATReceive(){
 uint8_t SIM7000::_ATState(String _str)
 {
 	_boolBuffer = false;
-	if(_str.indexOf(F("OK"))>0)		_boolBuffer=true; 	
+	if (_str.indexOf(F("OK")) > 0)
+		_boolBuffer = true;
 	return _boolBuffer;
 }
 
-void SIM7000::getGPS() {
+void SIM7000::getGPS()
+{
 	// �T�{�Ҳժ��A
-	for (_i_c = 0; _i_c < 5; _i_c++) {
-		if (AT_Test()) break;
+	for (_i_c = 0; _i_c < 5; _i_c++)
+	{
+		if (AT_Test())
+			break;
 		delay(1000);
 	}
 
@@ -187,7 +193,8 @@ void SIM7000::getGPS() {
 		_Debuger(F("Longitude -> "), H_NBIOT, NONE);
 		_Debuger(Longitude, NONE, EOL);
 	}
-	else {
+	else
+	{
 		_Debuger(F("GPS ERROR -> "), H_NBIOT, NONE);
 		_Debuger(ResString, NONE, EOL);
 	}

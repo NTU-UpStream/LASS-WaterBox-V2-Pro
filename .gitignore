@@ -1,5 +1,8 @@
 
+
 .DS_Store
-Firmware/ArduinoLibrary/libraries/.DS_Store
-Firmware/ArduinoLibrary/libraries/.DS_Store
-Firmware/ArduinoLibrary/libraries/.DS_Store
+*/.DS_Store
+**/.DS_Store
+*/.vscode
+
+Firmware/.vscode/arduino.json
