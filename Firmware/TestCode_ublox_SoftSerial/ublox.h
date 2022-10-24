@@ -43,7 +43,7 @@ public:
     void setUART(Stream &refSerNBIOT); // 設定NBIOT的UART
 
     void init(uint8_t _pin);
-    void ON();
+    void ON(float _sec = 1.0);
     void OFF();
 
     void MQTT_init(char *_id, char *_broker, uint16_t _port);
@@ -94,9 +94,10 @@ void ublox::init(uint8_t _pin)
     pinMode(_PowerPin, OUTPUT);
 }
 
-void ublox::ON()
+void ublox::ON(float _sec)
 {
     digitalWrite(_PowerPin, HIGH);
+    delay(_sec * 1000);
 }
 
 void ublox::OFF()
