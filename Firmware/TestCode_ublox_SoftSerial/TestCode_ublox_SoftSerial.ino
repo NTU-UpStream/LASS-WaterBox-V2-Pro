@@ -1,21 +1,23 @@
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 SoftwareSerial sNBIOT(9, 8); //(rxPin, txPin)
 
 #include "ublox.h"
+#define NB_POWER 3
 ublox NBIOT;
 
-/* 測試用 */
-String getSerial(Stream &_ref)
-{
+static char TestBuffer[64];
 
-    String _buffer;
-    while (_ref.available())
+/* 測試用 */
+int16_t getSerial(Stream &_ref)
+{
+    memset(TestBuffer, '\0', 64); // 清空BUFFER
+    int16_t _msgSize = _ref.available();
+    for (uint16_t _i = 0; _i < _msgSize; _i++)
     {
-        char _c = (char)_ref.read();
-        _buffer += _c;
+        TestBuffer[_i] = _ref.read();
         delay(10);
     }
-    return _buffer;
+    return strlen(TestBuffer);
 }
 
 void setup()
@@ -25,10 +27,17 @@ void setup()
 
     NBIOT.setDebuger(Serial);
     NBIOT.setUART(sNBIOT);
+    NBIOT.init(NB_POWER);
 
     Serial.println("Setup Done");
 
-    NBIOT.AT_CMD("AT＋CSQ", false);
+    NBIOT.AT_CMD("AT", true);
+    NBIOT.AT_CMD("AT+CSQ", true);
+
+    NBIOT.AT_CMD("AT+CGATT?", true);
+    NBIOT.AT_CMD("AT+UMQTTC=0", true);
+
+    NBIOT.MQTT_init("GAIA1234567", "gpssensor.ddns.net", 1883);
 
     Serial.println("Test Done");
 }
@@ -36,23 +45,23 @@ void setup()
 void loop()
 {
     /* 測試用 */
-    String _UART = getSerial(Serial);
-
-    if (_UART.length() > 0)
+    int16_t _msg_size = getSerial(Serial);
+    if (_msg_size > 0)
     {
-        Serial.print("UART -> " + _UART);
-        Serial.flush();
-
-        _UART.replace("\n", "");
-        _UART.replace("\r", "");
-        sNBIOT.println(_UART);
+        Serial.print("UART -> ");
+        Serial.print(_msg_size);
+        Serial.print("/");
+        Serial.println(TestBuffer);
+        NBIOT.AT_CMD(TestBuffer);
     }
 
-    /* 測試用 */
-    String _NBIOT = getSerial(sNBIOT);
-    if (_NBIOT.length() > 0)
+    bool isOnline = NBIOT.isOnline();
+    if (!isOnline)
+        Serial.println("ERROR, NBIOT offline");
+    else
     {
-        Serial.println("NBIOT -> " + _NBIOT);
-        Serial.flush();
+        NBIOT.AT_CMD("AT+UMQTTC=0", true);
+        NBIOT.MQTT_pub("LASS/Test/WaterBox_TW/Test", "Hi");
     }
+    delay(5000);
 }

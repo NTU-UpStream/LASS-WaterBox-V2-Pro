@@ -4,6 +4,7 @@
 #define _UBLOX_H_
 
 #define BUFFER_SIZE 256
+#define defPowerPin 3
 
 class ublox
 {
@@ -40,20 +41,37 @@ public:
 
     void setDebuger(Stream &refSer);   // 設定Debug的輸出UART
     void setUART(Stream &refSerNBIOT); // 設定NBIOT的UART
-    uint16_t AT_CMD(char *_cmd, uint8_t _pop = true, uint8_t _check = false);
+
+    void init(uint8_t _pin);
+    void ON();
+    void OFF();
+
+    void MQTT_init(char *_id, char *_broker, uint16_t _port);
+    void MQTT_pub(char *_topic, char *_msg, uint8_t _QoS = 0, uint8_t _retain = 0);
+
+    uint16_t AT_CMD(char *_cmd, uint8_t _show = false, uint16_t _delay = 800);
     uint16_t ATReceive(); // 取得回傳值
+    uint8_t isOnline();
 
 private:
-    Stream *_sSerial;
-    Stream *_ref;
+    static Stream *_sSerial;
+    static Stream *_ref;
 
     uint8_t _isDebug = false;
 
-    uint16_t _count_uart; // 計算uart 溝通用的字串長度
+    uint16_t _count_uart;             // 計算uart 溝通用的字串長度
+    uint16_t _PowerPin = defPowerPin; // 控制電源的pin
 
     void _Debuger(char *_msg, UART _header, UART _eol = NONE);
     AT_STATUS _ATState();
+    uint8_t _uint[5]; // sscanf 比對時，用來放uint8_t 的位置, 預留5個
 };
+
+//
+// Statics, 必須在class.h 之外在宣告一次
+//
+Stream *ublox::_sSerial;
+Stream *ublox::_ref;
 
 ublox::ublox(){};
 
@@ -70,22 +88,33 @@ void ublox::setUART(Stream &refSerNBIOT)
     _sSerial = &refSerNBIOT;
 }
 
-uint16_t ublox::AT_CMD(char *_cmd, uint8_t _pop, uint8_t _check)
+void ublox::init(uint8_t _pin)
+{
+    _PowerPin = _pin;
+    pinMode(_PowerPin, OUTPUT);
+}
+
+void ublox::ON()
+{
+    digitalWrite(_PowerPin, HIGH);
+}
+
+void ublox::OFF()
+{
+    digitalWrite(_PowerPin, LOW);
+}
+
+uint16_t ublox::AT_CMD(char *_cmd, uint8_t _show, uint16_t _delay)
 {
     _sSerial->println(_cmd);
     _sSerial->flush();
-    delay(800);
+    delay(_delay);
 
     uint16_t _l_cmd = ATReceive();              // 收到的回應長度
     uint16_t _l_Re = _l_cmd - strlen(_cmd) - 2; // 實際回應的指令長度
 
-    if (_pop)
-    {
-        // 移除指令: Buffer起始位置, Buffer中回應字串的起始位置, 轉移的長度(剩下的char)
-        // _cmd: 不包含\r\n，計算指令長度時需要另外+2+1(下一個才開始)
-        memmove(BUFFER, BUFFER + strlen(_cmd) + 3, _l_Re);
-    }
-    _Debuger(BUFFER, H_NBIOT, NONE);
+    if (_show)
+        _Debuger(BUFFER, H_NBIOT, EOL);
 
     return strlen(BUFFER);
 }
@@ -99,15 +128,46 @@ uint16_t ublox::ATReceive()
     for (uint16_t _i = 0; _i < _count_uart; _i++)
     {
         BUFFER[_i] = (char)_sSerial->read();
+        delay(5);
     }
 
-    // while (_sSerial->available())
-    // {
-    //     _c = (char)_sSerial->read();
-    //     _ref->write(_c);
-    // }
-
     return _count_uart;
+}
+
+void ublox::MQTT_init(char *_id, char *_broker, uint16_t _port)
+{
+    sprintf(BUFFER, "AT+UMQTT=0,\"%s\"", _id);
+    AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
+    sprintf(BUFFER, "AT+UMQTT=1,1883");
+    AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
+    sprintf(BUFFER, "AT+UMQTT=2,\"%s\",%d", _broker, _port);
+    AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
+    sprintf(BUFFER, "AT+UMQTT=10,30");
+    AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
+}
+
+void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
+{
+    // 開啟MQTT Broker連線
+    sprintf(BUFFER, "AT+UMQTTC=1");
+    AT_CMD(BUFFER, true, 10000);
+
+    sprintf(BUFFER, "AT+UMQTTC=2,%d,%d,\"%s\",\"%s\"", _QoS, _retain, _topic, _msg);
+    _Debuger(BUFFER, H_CMD, EOL);
+    Serial.println(strlen(BUFFER));
+    AT_CMD(BUFFER, true);
+
+    // 關閉MQTT Broker連線
+    sprintf(BUFFER, "AT+UMQTTC=0");
+    AT_CMD(BUFFER, true);
+    delay(500);
+}
+
+uint8_t ublox::isOnline()
+{
+    AT_CMD("AT+CGATT?"); // 輸入查詢指令
+    uint8_t _result = sscanf(BUFFER, "%s\r+CGATT: %d", INFO, &_uint[0]);
+    return _uint[0];
 }
 
 void ublox::_Debuger(char *_msg, UART _header, UART _eol)
