@@ -107,7 +107,8 @@ void ublox::OFF()
 
 uint16_t ublox::AT_CMD(char *_cmd, uint8_t _show, uint16_t _delay)
 {
-    _sSerial->println(_cmd);
+    _sSerial->print(_cmd);
+    _sSerial->print("\r");
     _sSerial->flush();
     delay(_delay);
 
@@ -149,19 +150,22 @@ void ublox::MQTT_init(char *_id, char *_broker, uint16_t _port)
 
 void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
 {
-    // 開啟MQTT Broker連線
+    // 開啟MQTT Broker連線(登入broker)
+    Serial.println("[MQTT] Concenting MQTT Broker");
     sprintf(BUFFER, "AT+UMQTTC=1");
-    AT_CMD(BUFFER, true, 10000);
+    AT_CMD(BUFFER, true, 5000);
 
+    // 傳松資料（預留）5秒空檔
     sprintf(BUFFER, "AT+UMQTTC=2,%d,%d,\"%s\",\"%s\"", _QoS, _retain, _topic, _msg);
     _Debuger(BUFFER, H_CMD, EOL);
-    Serial.println(strlen(BUFFER));
+    Serial.println(strlen(BUFFER)); // 顯示封包長度字串長度
     AT_CMD(BUFFER, true);
+    delay(5000);
 
     // 關閉MQTT Broker連線
+    Serial.println("[MQTT] Disconnect MQTT Broker");
     sprintf(BUFFER, "AT+UMQTTC=0");
     AT_CMD(BUFFER, true);
-    delay(500);
 }
 
 uint8_t ublox::isOnline()
