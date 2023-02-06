@@ -88,6 +88,9 @@ void setup(void)
 
 void loop(void)
 {
+
+  bool isOnline;
+
   if (PMU.state == PMU.MASTER)
   {
 
@@ -105,7 +108,6 @@ void loop(void)
     strcat(ID, STR_BUFFER);          // 沿用 STR_BUFFER裡面的 MAC
     if (Flash_STR_BUFFER(radom_str)) // 把亂數轉存在STR_BUFFER後面
       strcat(ID, STR_BUFFER);
-    // radom_str.toCharArray(STR_BUFFER, radom_str.length() + 1);
 
     // 建立Publish封包
     memset(MSG, '\0', MSG_SIZE);
@@ -205,10 +207,29 @@ void loop(void)
 
     PMU.ControlPower(PMU.OFF);
 
-    NBIOT.ON(30); // 開啟動模組30秒
+    NBIOT.ON(45);                                // 開啟動模組45秒
+    NBIOT.MQTT_init(ID, Server_LASS, Port_LASS); // 初始化MQTT參數(花時0.8*4 = 3.2sec)
+
+    // 嘗試連線45次, 一次2秒，最多90秒
+    for (int8_t _i = 45; _i > 0; _i--)
+    {
+      isOnline = NBIOT.isOnline();
+      if (!isOnline)
+      {
+        Serial.print(_i);
+        Serial.println("[SYS-ERROR] NBIOT was offline");
+        delay(2000);
+      }
+      else
+      {
+        Serial.println("[SYS-OK] NBIOT is online");
+        NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000); // 先強制關閉連線(2sec)
+        NBIOT.MQTT_pub(TOPIC, MSG, 1);           // 發布訊息(10+5+0.8 sec)
+        _i = -1;                                 // 強制跳出 for
+      }
+    }
 
     NBIOT.OFF();
-
     PMU.Sleep();
   }
   //  else{
