@@ -51,7 +51,7 @@ void loop()
 {
     bool isOnline;
     _count++;
-    NBIOT.ON(90); // 開機後等待90秒
+    NBIOT.ON(60); // 開機後等待90秒
 
     NBIOT.AT_CMD("AT+CSQ", true);
 
@@ -83,14 +83,12 @@ void loop()
         else
         {
             Serial.println("[SYS-OK] NBIOT is online");
-
             NBIOT.AT_CMD("AT+UMQTTC=0", true); // 先強制關閉連線
             delay(1000);                       // 斷線後等1秒再重新連線
 
             sprintf(TestBuffer, "%s %d-%d", "Hi~", _count, _i);
             NBIOT.MQTT_pub("LASS/Test/WaterBox_TW/Test", TestBuffer, 1); // 發布訊息
-
-            _i = -1; // 強制跳出
+            _i = -1;                                                     // 強制跳出
         }
     }
 

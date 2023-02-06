@@ -153,14 +153,13 @@ void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
     // 開啟MQTT Broker連線(登入broker)
     Serial.println("[MQTT] Concenting MQTT Broker");
     sprintf(BUFFER, "AT+UMQTTC=1");
-    AT_CMD(BUFFER, true, 5000);
+    AT_CMD(BUFFER, true, 10000); // 登入10秒等待
 
     // 傳松資料（預留）5秒空檔
     sprintf(BUFFER, "AT+UMQTTC=2,%d,%d,\"%s\",\"%s\"", _QoS, _retain, _topic, _msg);
     _Debuger(BUFFER, H_CMD, EOL);
     Serial.println(strlen(BUFFER)); // 顯示封包長度字串長度
-    AT_CMD(BUFFER, true);
-    delay(5000);
+    AT_CMD(BUFFER, true, 5000);
 
     // 關閉MQTT Broker連線
     Serial.println("[MQTT] Disconnect MQTT Broker");
