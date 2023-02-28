@@ -70,7 +70,7 @@ void loop()
         NBIOT.AT_CMD(TestBuffer);
     }
 
-    // 嘗試連線45次, 一次2秒共90秒
+    // 嘗試連線45次, 一次2秒，最多90秒
     for (int8_t _i = 45; _i > 0; _i--)
     {
         isOnline = NBIOT.isOnline();
