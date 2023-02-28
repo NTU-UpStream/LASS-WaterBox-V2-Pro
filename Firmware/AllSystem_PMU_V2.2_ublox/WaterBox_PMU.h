@@ -80,7 +80,7 @@ public:
   static String Field_9;
   static String Field_10;
   static String Field_11;
-  static String Field_12;
+  // static String Field_12;
 
   static String APN;
 

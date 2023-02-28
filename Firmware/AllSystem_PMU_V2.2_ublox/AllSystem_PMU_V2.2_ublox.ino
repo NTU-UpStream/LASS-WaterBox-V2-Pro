@@ -34,6 +34,7 @@ char ID[20] = {'\0'};
 String radom_str; // 給client id 用
 
 uint16_t _loop_count = 0; // 記數用
+bool isOnline;
 
 /***********<< 更新 BUFFER >>**********
   Flash_STR_BUFFER 更新 STR_BUFFER, 輸入String
@@ -42,7 +43,7 @@ bool Flash_STR_BUFFER(String _str)
 {
   if (_str.length() > 20)
   {
-    Serial.print("[STR BUFFER ERROR]");
+    Serial.print(F("[STR BUFFER ERROR]"));
     Serial.print(_str.length());
     Serial.println("->" + _str);
     return false;
@@ -88,9 +89,6 @@ void setup(void)
 
 void loop(void)
 {
-
-  bool isOnline;
-
   if (PMU.state == PMU.MASTER)
   {
 
@@ -173,11 +171,11 @@ void loop(void)
       strcat(MSG, STR_BUFFER);
     }
 
-    if (Flash_STR_BUFFER(PMU.Field_12))
-    {
-      strcat(MSG, "|F12=");
-      strcat(MSG, STR_BUFFER);
-    }
+    // if (Flash_STR_BUFFER(PMU.Field_12))
+    // {
+    //   strcat(MSG, "|F12=");
+    //   strcat(MSG, STR_BUFFER);
+    // }
     strcat(MSG, "|");
 
     // 把要傳送封包(LASS 格式), 打包成String
@@ -199,11 +197,11 @@ void loop(void)
 
     /*********** 檢查 PUBLISH_KPG.MSG 內容(不要刪) ***********/
     Serial.println("[MSG-" + String(_loop_count) + "]");
-    Serial.print("\t");
+    Serial.print(F("\t"));
     Serial.print(strlen(MSG));
-    Serial.print(" -> ");
+    Serial.print(F(" -> "));
     Serial.print(MSG);
-    Serial.println("\r\n");
+    Serial.println(F("\r\n"));
 
     PMU.ControlPower(PMU.OFF);
 
@@ -217,12 +215,12 @@ void loop(void)
       if (!isOnline)
       {
         Serial.print(_i);
-        Serial.println("[SYS-ERROR] NBIOT was offline");
+        Serial.println(F("[SYS-ERROR] NBIOT was offline"));
         delay(2000);
       }
       else
       {
-        Serial.println("[SYS-OK] NBIOT is online");
+        Serial.println(F("[SYS-OK] NBIOT is online"));
         NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000); // 先強制關閉連線(2sec)
         NBIOT.MQTT_pub(TOPIC, MSG, 1);           // 發布訊息(10+5+0.8 sec)
         _i = -1;                                 // 強制跳出 for

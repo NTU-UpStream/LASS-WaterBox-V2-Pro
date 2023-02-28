@@ -42,7 +42,7 @@ String WaterBox_PMU::Field_8;
 String WaterBox_PMU::Field_9;
 String WaterBox_PMU::Field_10;
 String WaterBox_PMU::Field_11;
-String WaterBox_PMU::Field_12;
+// String WaterBox_PMU::Field_12;
 
 String WaterBox_PMU::APN;
 
@@ -501,13 +501,13 @@ void WaterBox_PMU::_cmd(String _str)
     Field_11 = _ComStr;
     _REQUEST = Req_Field;
   }
-  if (_str.indexOf(F("F12,")) > -1)
-  { //  設定欄位12
-    _Deguber(F("Set Field 12>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_12 = _ComStr;
-    _REQUEST = Req_Field;
-  }
+  // if (_str.indexOf(F("F12,")) > -1)
+  // { //  設定欄位12
+  //   _Deguber(F("Set Field 12>> "), H_CMD);
+  //   _Deguber(_ComStr, NONE, EOL);
+  //   Field_12 = _ComStr;
+  //   _REQUEST = Req_Field;
+  // }
 
   if (_str.indexOf(F("APN,")) > -1)
   { //  設定APN

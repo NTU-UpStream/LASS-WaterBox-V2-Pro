@@ -23,16 +23,6 @@ public:
         ERROR
     };
 
-    struct NBIOT_APN
-    {
-        const char *cht_NB = "nbiot";
-        const char *fet_NB = "internet.iot";
-        const char *twm_NB = "twm.nbiot";
-        const char *fet_NB_30M = "iot4ga2";
-    };
-
-    NBIOT_APN APN;
-
     char BUFFER[BUFFER_SIZE]; // 裝模組回傳資料
     char INFO[BUFFER_SIZE];   // 裝系統提示訊息
 
@@ -151,7 +141,7 @@ void ublox::MQTT_init(char *_id, char *_broker, uint16_t _port)
 void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
 {
     // 開啟MQTT Broker連線(登入broker)
-    Serial.println("[MQTT] Concenting MQTT Broker");
+    Serial.println(F("[MQTT] Concenting MQTT Broker"));
     sprintf(BUFFER, "AT+UMQTTC=1");
     AT_CMD(BUFFER, true, 10000); // 登入10秒等待
 
@@ -162,7 +152,7 @@ void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
     AT_CMD(BUFFER, true, 5000);
 
     // 關閉MQTT Broker連線
-    Serial.println("[MQTT] Disconnect MQTT Broker");
+    Serial.println(F("[MQTT] Disconnect MQTT Broker"));
     sprintf(BUFFER, "AT+UMQTTC=0");
     AT_CMD(BUFFER, true);
 }
