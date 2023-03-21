@@ -14,11 +14,12 @@ SoftwareSerial sNBIOT(9, 8); //(rxPin, txPin)
 ublox NBIOT;
 
 // LASS MQTT Config
-#define Server_LASS "gpssensor.ddns.net"
-#define Port_LASS 1883
-#define MQTT_LASS_Topic "LASS/Test/WaterBox_TW/"
 
-#define MSG_INIT "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1"
+const char Server_LASS[] PROGMEM = "gpssensor.ddns.net";
+const char MQTT_LASS_Topic[] PROGMEM = "LASS/Test/WaterBox_TW/";
+#define Port_LASS 1883
+const char MSG_INIT[] PROGMEM = "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1";
+
 #define SIMCOM_MS 10
 String AT_Buffer;
 
@@ -113,61 +114,61 @@ void loop(void)
 
     if (Flash_STR_BUFFER(PMU.Field_1))
     {
-      strcat(MSG, "|date=");
+      strcat_PF(MSG, PSTR("|date="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_2))
     {
-      strcat(MSG, "|time=");
+      strcat_PF(MSG, PSTR("|time="));
       strcat(MSG, STR_BUFFER);
     }
 
     if (Flash_STR_BUFFER(PMU.Field_3))
     {
-      strcat(MSG, "|device_id=");
+      strcat_PF(MSG, PSTR("|device_id="));
       strcat(MSG, STR_BUFFER);
     }
 
     if (Flash_STR_BUFFER(PMU.Field_4))
     {
-      strcat(MSG, "|gps_lon=");
+      strcat_PF(MSG, PSTR("|gps_lon="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_5))
     {
-      strcat(MSG, "|gps_lat=");
+      strcat_PF(MSG, PSTR("|gps_lat="));
       strcat(MSG, STR_BUFFER);
     }
 
     if (Flash_STR_BUFFER(PMU.Field_6))
     {
-      strcat(MSG, "|s_ec2=");
+      strcat_PF(MSG, PSTR("|s_ec2="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_7))
     {
-      strcat(MSG, "|s_ph2=");
+      strcat_PF(MSG, PSTR("|s_ph2="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_8))
     {
-      strcat(MSG, "|s_t7=");
+      strcat_PF(MSG, PSTR("|s_t7="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_9))
     {
-      strcat(MSG, "|s_Tb=");
+      strcat_PF(MSG, PSTR("|s_Tb="));
       strcat(MSG, STR_BUFFER);
     }
 
     if (Flash_STR_BUFFER(PMU.Field_10))
     {
-      strcat(MSG, "|bat_v=");
+      strcat_PF(MSG, PSTR("|bat_v="));
       strcat(MSG, STR_BUFFER);
     }
     if (Flash_STR_BUFFER(PMU.Field_11))
     {
-      strcat(MSG, "|bat_a=");
+      strcat_PF(MSG, PSTR("|bat_a="));
       strcat(MSG, STR_BUFFER);
     }
 
@@ -176,32 +177,10 @@ void loop(void)
     //   strcat(MSG, "|F12=");
     //   strcat(MSG, STR_BUFFER);
     // }
-    strcat(MSG, "|");
+    strcat(MSG, PSTR("|"));
 
     // 把要傳送封包(LASS 格式), 打包成String
     // msg_str = "|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date=2019-03-21|time=06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.70|bat_a=400.00|";
-
-    /*********** 封包內容印出來確認(不要刪) ***********/
-    //     Serial.println("[ID-"+String(_loop_count)+"]");
-    //     Serial.print("\t");
-    //     Serial.print(strlen(ID));
-    //     Serial.print(" -> ");
-    //     Serial.println(ID);
-
-    /*********** 檢查 PUBLISH_KPG.TOPIC 內容(不要刪) ***********/
-    //     Serial.println("[TOPIC-"+String(_loop_count)+"]");
-    //     Serial.print("\t");
-    //     Serial.print(strlen(TOPIC));
-    //     Serial.print(" -> ");
-    //     Serial.println(TOPIC);
-
-    /*********** 檢查 PUBLISH_KPG.MSG 內容(不要刪) ***********/
-    Serial.println("[MSG-" + String(_loop_count) + "]");
-    Serial.print(F("\t"));
-    Serial.print(strlen(MSG));
-    Serial.print(F(" -> "));
-    Serial.print(MSG);
-    Serial.println(F("\r\n"));
 
     PMU.ControlPower(PMU.OFF);
 

@@ -69,26 +69,22 @@ public:
   static float Current; // 電池上次的電流量
   static enum STATE state;
 
-  static String Field_1;
-  static String Field_2;
-  static String Field_3;
-  static String Field_4;
-  static String Field_5;
-  static String Field_6;
-  static String Field_7;
-  static String Field_8;
-  static String Field_9;
-  static String Field_10;
-  static String Field_11;
-  // static String Field_12;
+  static char Field_1[16];
+  static char Field_2[16];
+  static char Field_3[16];
+  static char Field_4[16];
+  static char Field_5[16];
+  static char Field_6[16];
+  static char Field_7[16];
+  static char Field_8[16];
+  static char Field_9[16];
+  static char Field_10[16];
+  static char Field_11[16];
+  static char Field_12[16];
 
-  static String APN;
+  static char APN[16];
 
-  static uint16_t MQTTSizeMsg;     // MQTT 訊息封包的大小
-  static uint16_t MQTTSizeConnect; // MQTT 連線封包的大小
-  static void showBuffer(byte *_buffer, uint16_t _size);
-
-  static String ATCMD; //  給NBIOT的Command
+  static char ATCMD[32]; //  給NBIOT的Command
   static void ATClear();
 
 private:
@@ -96,8 +92,6 @@ private:
   static uint16_t _CrtlPinMAIN;
   static uint16_t _CrtlPinNBIOT;
   static uint16_t _CrtlPinINA219;
-
-  // static SIM7000 _NB;
 
   static Stream &refSerial;
 
@@ -116,12 +110,15 @@ private:
 
   static void _receiveEvent(int howMany);
   static void _requestEvent();
-  static void _cmd(String _str);
+  static void _cmd(char *_str);
 
-  static String _ComStr;
-  static String _recBuffer;
+  static char _ComStr[32];
+  static char _CmdStr[16];
+  static char _CmdType[16];
+  static char _recBuffer[32];
   static IC2Request _REQUEST;
 
   static void _Deguber(String _msg, UART _header, UART _uart = NONE);
+  static void _Deguber(char *_msg, UART _header, UART _uart = NONE);
 };
 #endif

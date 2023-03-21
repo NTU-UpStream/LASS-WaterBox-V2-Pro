@@ -3,7 +3,7 @@
 #ifndef _UBLOX_H_
 #define _UBLOX_H_
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 64
 #define defPowerPin 3
 
 class ublox
@@ -138,39 +138,39 @@ uint16_t ublox::ATReceive()
 
 void ublox::MQTT_init(char *_id, char *_broker, uint16_t _port)
 {
-    sprintf(BUFFER, "AT+UMQTT=0,\"%s\"", _id);
+    sprintf_P(BUFFER, F("AT+UMQTT=0,\"%s\""), _id);
     AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
-    sprintf(BUFFER, "AT+UMQTT=1,1883");
+    sprintf_P(BUFFER, F("AT+UMQTT=1,1883"));
     AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
-    sprintf(BUFFER, "AT+UMQTT=2,\"%s\",%d", _broker, _port);
+    sprintf_P(BUFFER, F("AT+UMQTT=2,\"%s\",%d"), _broker, _port);
     AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
-    sprintf(BUFFER, "AT+UMQTT=10,30");
+    sprintf_P(BUFFER, F("AT+UMQTT=10,30"));
     AT_CMD(BUFFER, true); // _Debuger(BUFFER, H_CMD, EOL);
 }
 
 void ublox::MQTT_pub(char *_topic, char *_msg, uint8_t _QoS, uint8_t _retain)
 {
     // 開啟MQTT Broker連線(登入broker)
-    Serial.println("[MQTT] Concenting MQTT Broker");
-    sprintf(BUFFER, "AT+UMQTTC=1");
+    Serial.println(F("[MQTT] Concenting MQTT Broker"));
+    sprintf_P(BUFFER, F("AT+UMQTTC=1"));
     AT_CMD(BUFFER, true, 10000); // 登入10秒等待
 
     // 傳松資料（預留）5秒空檔
-    sprintf(BUFFER, "AT+UMQTTC=2,%d,%d,\"%s\",\"%s\"", _QoS, _retain, _topic, _msg);
+    sprintf_P(BUFFER, F("AT+UMQTTC=2,%d,%d,\"%s\",\"%s\""), _QoS, _retain, _topic, _msg);
     _Debuger(BUFFER, H_CMD, EOL);
     Serial.println(strlen(BUFFER)); // 顯示封包長度字串長度
     AT_CMD(BUFFER, true, 5000);
 
     // 關閉MQTT Broker連線
-    Serial.println("[MQTT] Disconnect MQTT Broker");
-    sprintf(BUFFER, "AT+UMQTTC=0");
+    Serial.println(F("[MQTT] Disconnect MQTT Broker"));
+    sprintf_P(BUFFER, F("AT+UMQTTC=0"));
     AT_CMD(BUFFER, true);
 }
 
 uint8_t ublox::isOnline()
 {
     AT_CMD("AT+CGATT?"); // 輸入查詢指令
-    uint8_t _result = sscanf(BUFFER, "%s\r+CGATT: %d", INFO, &_uint[0]);
+    uint8_t _result = sscanf_P(BUFFER, F("%s\r+CGATT: %d"), INFO, &_uint[0]);
     return _uint[0];
 }
 

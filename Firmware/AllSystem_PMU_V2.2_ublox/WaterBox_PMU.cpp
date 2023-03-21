@@ -10,14 +10,21 @@
 #define SLEEPTIME SLEEP_1S
 uint8_t i2c_BUFFER[30];
 
+const char f_s1[] PROGMEM = "%s";
+const char f_s2[] PROGMEM = "%s %s";
+const char f_s1d1[] PROGMEM = "%s %d";
+const char f_s1d1s1[] PROGMEM = "%s %d %s";
+
 uint8_t WaterBox_PMU::_Debug;
 Stream &WaterBox_PMU::refSerial = Serial;
 uint16_t WaterBox_PMU::_i_for;
 uint8_t WaterBox_PMU::_PowerSave = false;
 uint16_t WaterBox_PMU::_SleepSec;
 WaterBox_PMU::IC2Request WaterBox_PMU::_REQUEST;
-String WaterBox_PMU::_ComStr;
-String WaterBox_PMU::_recBuffer;
+char WaterBox_PMU::_ComStr[32];
+char WaterBox_PMU::_CmdStr[16];
+char WaterBox_PMU::_CmdType[16];
+char WaterBox_PMU::_recBuffer[32];
 
 float WaterBox_PMU::_WakeUpVoltage = 3.6;
 float WaterBox_PMU::Volate;
@@ -30,24 +37,21 @@ uint8_t WaterBox_PMU::_Addr = 0x70;
 uint8_t WaterBox_PMU::_INA219Addr = 0x40;
 
 // SIM7000               WaterBox_PMU::_NB;
-String WaterBox_PMU::ATCMD;
-String WaterBox_PMU::Field_1;
-String WaterBox_PMU::Field_2;
-String WaterBox_PMU::Field_3;
-String WaterBox_PMU::Field_4;
-String WaterBox_PMU::Field_5;
-String WaterBox_PMU::Field_6;
-String WaterBox_PMU::Field_7;
-String WaterBox_PMU::Field_8;
-String WaterBox_PMU::Field_9;
-String WaterBox_PMU::Field_10;
-String WaterBox_PMU::Field_11;
-// String WaterBox_PMU::Field_12;
+char WaterBox_PMU::ATCMD[32];
+char WaterBox_PMU::Field_1[16];
+char WaterBox_PMU::Field_2[16];
+char WaterBox_PMU::Field_3[16];
+char WaterBox_PMU::Field_4[16];
+char WaterBox_PMU::Field_5[16];
+char WaterBox_PMU::Field_6[16];
+char WaterBox_PMU::Field_7[16];
+char WaterBox_PMU::Field_8[16];
+char WaterBox_PMU::Field_9[16];
+char WaterBox_PMU::Field_10[16];
+char WaterBox_PMU::Field_11[16];
+char WaterBox_PMU::Field_12[16];
 
-String WaterBox_PMU::APN;
-
-uint16_t WaterBox_PMU::MQTTSizeMsg;     // MQTT 訊息封包的大小
-uint16_t WaterBox_PMU::MQTTSizeConnect; // MQTT 連線封包的大小
+char WaterBox_PMU::APN[16];
 
 WaterBox_PMU::WaterBox_PMU()
 {
@@ -85,13 +89,12 @@ void WaterBox_PMU::setDebuger(Stream &refSer)
 {
   _Debug = true;
   refSerial = refSer;
-  //_NB.setDebuger(refSer);
 }
 
 void WaterBox_PMU::setWakeUpVolate(float _v)
 {
   _WakeUpVoltage = _v;
-  _Deguber(F("Setting WAKE UP Volate: "), H_PMU);
+  _Deguber(F("WAKE UP Volate: "), H_PMU);
   _Deguber(String(_WakeUpVoltage), NONE);
   _Deguber(F(" V."), NONE, EOL);
 }
@@ -106,7 +109,7 @@ void WaterBox_PMU::setSleepSec(uint32_t _sec)
 }
 
 // 開始睡眠：切換到Master，關閉供電後開始進入睡眠循環，循環結束時更新電池狀態，低於喚醒電源後再開始供電返回1 (可以用while(Sleep())一值睡
-uint8_t WaterBox_PMU::Sleep(STATE _type = SLAVER)
+uint8_t WaterBox_PMU::Sleep(STATE _type)
 {
 
   LED(1, 700);
@@ -225,23 +228,7 @@ void WaterBox_PMU::LED(uint16_t _times, uint16_t _ratio)
 // 清除指令
 void WaterBox_PMU::ATClear()
 {
-  ATCMD = "";
-}
-
-// 把Buffer 列出來
-void WaterBox_PMU::showBuffer(byte *_buffer, uint16_t _size)
-{
-  for (_i_for = 0; _i_for < _size; _i_for++)
-  {
-    if (_buffer[_i_for + 2] < 16)
-      refSerial.print(F("0x0"));
-    else
-      refSerial.print(F("0x"));
-    refSerial.print(_buffer[_i_for + 2], HEX);
-    refSerial.print(F(" "));
-    if (_i_for % 10 == 9)
-      refSerial.println();
-  }
+  memset(ATCMD, '\0', 32);
 }
 
 void WaterBox_PMU::_Deguber(String _msg, UART _header, UART _uart = NONE)
@@ -277,89 +264,97 @@ void WaterBox_PMU::_Deguber(String _msg, UART _header, UART _uart = NONE)
   }
 }
 
+void WaterBox_PMU::_Deguber(char *_msg, UART _header, UART _uart = NONE)
+{
+  if (_Debug)
+  {
+    switch (_header)
+    {
+    case H_PMU:
+      refSerial.print(F("[PMU]\t"));
+      break;
+    case H_I2C:
+      refSerial.print(F("[I2C]\t"));
+      break;
+    case H_CMD:
+      refSerial.print(F("[CMD]\t"));
+      break;
+    default:
+      break;
+    }
+
+    switch (_uart)
+    {
+    case NONE:
+      refSerial.print(_msg);
+      break;
+    case EOL:
+      refSerial.println(_msg);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
 // I2C 收到指令後要回傳的反應
 void WaterBox_PMU::_requestEvent()
 {
+  memset(_recBuffer, '\0', 32);
   // 按照_cmd解析後的指令狀態(_REQUEST) 回傳30 char長度的資料，多餘的長度用" "填滿
   switch (_REQUEST)
   {
   case Req_NONE:
-    _recBuffer = F("No String");
+    sprintf_P(_recBuffer, f_s1, F("NoString"));
     break;
   case Req_TIME:
-    _recBuffer = F("OK, timer -> ");
-    _recBuffer += String(_SleepSec);
-    _recBuffer += F(" sec");
+    sprintf_P(_recBuffer, f_s1d1s1, F("OK"), _SleepSec, F("sec"));
     break;
   case Req_LOWPOWER:
-    _recBuffer = F("OK, LowPower -> ");
-    _recBuffer += String(_PowerSave);
+    sprintf_P(_recBuffer, f_s1d1, F("OK "), _PowerSave);
     break;
   case Req_BAT_VOLATE:
-    _recBuffer = F("OK, ");
-    _recBuffer += String(Volate);
-    _recBuffer += F("(V)");
+    sprintf_P(_recBuffer, f_s1d1s1, F("OK"), Volate, F("V"));
     break;
   case Req_BAT_CURRENT:
-    _recBuffer = F("OK, ");
-    _recBuffer += String(Current);
-    _recBuffer += F("(mA)");
+    sprintf_P(_recBuffer, f_s1d1s1, F("OK"), Current, F("mA"));
     break;
   case Req_AT:
-    _recBuffer = F("OK");
+    sprintf_P(_recBuffer, f_s1, F("OK"));
     break;
   case Req_APN:
-    _recBuffer = F("OK, APN- > ");
-    _recBuffer += APN;
-    break;
-  case Req_MQTT_CONNECT:
-    _recBuffer = F("OK, MQTT Connect");
-    break;
-  case Req_MQTT_MSG:
-    _recBuffer = F("OK, MQTT Msg");
-    break;
-  case Req_RESTFUL_BUFFER:
-    _recBuffer = F("OK");
+    sprintf_P(_recBuffer, f_s2, F("OK"), APN);
     break;
   case Req_Field:
-    _recBuffer = F("OK");
+    sprintf_P(_recBuffer, f_s1, F("OK"));
     break;
   default:
-    _recBuffer = F("Command ERROR");
+    sprintf_P(_recBuffer, f_s1, F("Command ERROR"));
     break;
-  }
-
-  uint16_t _BufferSize = _recBuffer.length();
-
-  for (_i_for = 0; _i_for + _BufferSize < _I2C_BUFFER_SIZE; _i_for++)
-  {
-    _recBuffer += F(" ");
   }
 
   _Deguber(_recBuffer, H_I2C, EOL);
-  _Deguber("", NONE, EOL);
-
-  Wire.write(_recBuffer.c_str());
+  Wire.write(_recBuffer);
 }
 
+// 改寫完成
 void WaterBox_PMU::_receiveEvent(int howMany)
 {
   // 收到WaterBox I2C的指令後，丟給_cmd()處理
-  _ComStr = "";
-  _i_for = 0;
-
-  while (Wire.available())
+  memset(_ComStr, '\0', 32);
+  for (_i_for = 0; _i_for < howMany; _i_for++)
   {
-    char _c_ = Wire.read();
-    _ComStr += String(_c_);
+    _ComStr[_i_for] = Wire.read();
     delay(10);
   }
+  _i_for = 0; // 使用完畢後歸零
+
   LED(1, 300);
   _Deguber(_ComStr, H_CMD, EOL);
   _cmd(_ComStr);
 }
 
-void WaterBox_PMU::_cmd(String _str)
+void WaterBox_PMU::_cmd(char *_str)
 {
   /*
     TIME,sec         // 設定鬧鐘(秒)
@@ -371,151 +366,81 @@ void WaterBox_PMU::_cmd(String _str)
   */
 
   // 先重新利用_ComStr, 取得","後面的字串
-  _ComStr = _str.substring(_str.indexOf(F(",")) + 1);
+  for (_i_for = 0; _i_for < strlen(_str); _i_for++)
+  {
+    // ',' 換成 ' '
+    if (_str[_i_for] == ',')
+      _str[_i_for] = ' ';
 
-  // 再把所有的_str變大寫，作為指令判斷
-  _str.toUpperCase();
+    // 改成大寫
+    _str[_i_for] = toupper(_str[_i_for]);
+  }
 
-  if (_str.length() > 0)
-    _REQUEST = Req_ERROR;
-  else
-    _REQUEST = Req_NONE;
-
-  if (_str.indexOf(F("TIME,")) > -1)
+  if (sscanf_P(_str, PSTR("TIME %d"), &_SleepSec) > 0)
   { // TIME,30 設定睡眠時間30Sec
-    _Deguber(F("TIME -> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    _SleepSec = _ComStr.toInt();
     setSleepSec(_SleepSec);
     _REQUEST = Req_TIME;
   }
-  if (_str.indexOf(F("SLEEP")) > -1)
-  { // 先睡著，醒了才回傳資料(???)
-    _Deguber(F("get SLEEP command"), H_CMD, EOL);
-    _Deguber(F("Control Swtich To PMU"), H_CMD, EOL);
-    //    Sleep();         // 以 SLAVER 睡眠, 醒來後進入SLAVER狀態
+
+  if (sscanf_P(_str, PSTR("SLEEP")) != NULL)
+  {
     _SwitchToMaster(); // 直接切換成MASTER狀態
   }
-  if (_str.indexOf(F("LOWPOWER,")) > -1)
+
+  if (sscanf_P(_str, PSTR("LOWPOWER %d"), &_PowerSave) > 0)
   { // LOWPOWER,1 -> 開啟省電狀態
-    _Deguber(F("LOWPOWER -> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    _PowerSave = _ComStr.toInt();
     PowerSaveMode(POWER(_PowerSave));
     _REQUEST = Req_LOWPOWER;
   }
-  if (_str.indexOf(F("VOLATE")) > -1)
+
+  if (strstr_P(_str, PSTR("VOLATE")) != NULL)
   { // VOLATE -> 回傳目前電壓
-    _Deguber(F("GET BATTERY VOLATE"), H_CMD, EOL);
     _REQUEST = Req_BAT_VOLATE;
   }
-  if (_str.indexOf(F("CURRENT")) > -1)
+
+  if (strstr_P(_str, PSTR("CURRENT")) != NULL)
   { // CURRENT -> 回傳目前電流mA
-    _Deguber(F("GET BATTERY CURRENT"), H_CMD, EOL);
     _REQUEST = Req_BAT_CURRENT;
   }
 
-  if (_str.indexOf(F("ATCMD,")) > -1)
-  { // 設定AT指令
-    ATClear();
-    _Deguber(F("ATCMD >> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    ATCMD = _ComStr;
-    _REQUEST = Req_AT;
-  }
+  if (sscanf_P(_str, PSTR("%s %s"), _CmdType, _recBuffer) > 0)
+  {
+    if (strcmp_PF(_CmdType, PSTR("F1")) > 0)
+      strcpy_P(Field_1, _recBuffer);
 
-  if (_str.indexOf(F("F1,")) > -1)
-  { // 設定欄位1: 設定ThingSpeak Field 1 的字串 or (WaterBoxPro)F2,Date
-    _Deguber(F("Set Field 1>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_1 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F2,")) > -1)
-  { // 設定欄位2: 設定ThingSpeak Field 2 的字串 or (WaterBoxPro)F2,Time
-    _Deguber(F("Set Field 2>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_2 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F3,")) > -1)
-  { // 設定欄位3: 設定ThingSpeak Field 3 的字串 or (WaterBoxPro)F3,MacAddress
-    _Deguber(F("Set Field 3>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_3 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F4,")) > -1)
-  { // 設定欄位4: 設定ThingSpeak Field 4 的字串 or (WaterBoxPro)F4,longitude
-    _Deguber(F("Set Field 4>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_4 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F5,")) > -1)
-  { // 設定欄位5: 設定ThingSpeak Field 5 的字串 or (WaterBoxPro)F5,latitude
-    _Deguber(F("Set Field 5>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_5 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F6,")) > -1)
-  { // 設定欄位6: 設定ThingSpeak Field 6 的字串 or (WaterBoxPro)F6,ec
-    _Deguber(F("Set Field 6>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_6 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F7,")) > -1)
-  { // 設定欄位7: 設定ThingSpeak Field 7 的字串 or (WaterBoxPro)F7,pH
-    _Deguber(F("Set Field 7>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_7 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F8,")) > -1)
-  { // 設定欄位8: ThingSpeak Field 8 的字串 or (WaterBoxPro)F8,Temperature
-    _Deguber(F("Set Field 8>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_8 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F9,")) > -1)
-  { // 設定欄位9 or (WaterBoxPro)F9,Turbidity
-    _Deguber(F("Set Field 9>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_9 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F10,")) > -1)
-  { // 設定欄位10 or (WaterBoxPro)F10,bat_v
-    _Deguber(F("Set Field 10>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_10 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  if (_str.indexOf(F("F11,")) > -1)
-  { //  設定欄位11 or (WaterBoxPro)F11,bat_a
-    _Deguber(F("Set Field 11>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    Field_11 = _ComStr;
-    _REQUEST = Req_Field;
-  }
-  // if (_str.indexOf(F("F12,")) > -1)
-  // { //  設定欄位12
-  //   _Deguber(F("Set Field 12>> "), H_CMD);
-  //   _Deguber(_ComStr, NONE, EOL);
-  //   Field_12 = _ComStr;
-  //   _REQUEST = Req_Field;
-  // }
+    if (strcmp_PF(_CmdType, PSTR("F2")) > 0)
+      strcpy_P(Field_2, _recBuffer);
 
-  if (_str.indexOf(F("APN,")) > -1)
-  { //  設定APN
-    _Deguber(F("Set APN>> "), H_CMD);
-    _Deguber(_ComStr, NONE, EOL);
-    APN = _ComStr;
-    //    APN.toLowerCase();
-    _REQUEST = Req_APN;
+    if (strcmp_PF(_CmdType, PSTR("F3")) > 0)
+      strcpy_P(Field_3, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F4")) > 0)
+      strcpy_P(Field_4, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F5")) > 0)
+      strcpy_P(Field_5, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F6")) > 0)
+      strcpy_P(Field_6, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F7")) > 0)
+      strcpy_P(Field_7, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F8")) > 0)
+      strcpy_P(Field_8, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F9")) > 0)
+      strcpy_P(Field_9, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F10")) > 0)
+      strcpy_P(Field_10, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F11")) > 0)
+      strcpy_P(Field_11, _recBuffer);
+
+    if (strcmp_PF(_CmdType, PSTR("F12")) > 0)
+      strcpy_P(Field_12, _recBuffer);
+    _REQUEST = Req_Field;
   }
 }
 
