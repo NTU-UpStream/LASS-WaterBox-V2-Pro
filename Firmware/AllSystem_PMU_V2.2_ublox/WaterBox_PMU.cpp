@@ -1,3 +1,4 @@
+#include "avr/pgmspace.h"
 #include "WaterBox_PMU.h"
 #include <LowPower.h>
 
@@ -382,7 +383,7 @@ void WaterBox_PMU::_cmd(char *_str)
     _REQUEST = Req_TIME;
   }
 
-  if (sscanf_P(_str, PSTR("SLEEP")) != NULL)
+  if (strstr_P(_str, PSTR("SLEEP")) != NULL)
   {
     _SwitchToMaster(); // 直接切換成MASTER狀態
   }
