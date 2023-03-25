@@ -81,7 +81,7 @@ String atlas_cmd(String _cmd, uint16_t _delayMS, uint8_t _addr, bool _info = fal
 
 void setup() {
   Serial.begin(115200);
-  Wire.setClock(400000);
+  Wire.setClock(50000);
   Wire.begin();
   
   pinMode(switch_pin, INPUT);
@@ -89,7 +89,6 @@ void setup() {
   pinMode(power_pin, OUTPUT);
   systemPower(true);
   ads.setGain(GAIN_ONE);        // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
-
 }
 
 uint16_t _loop_times = 0;
@@ -104,6 +103,4 @@ void loop() {
 
   delay(900);
   _loop_times++;
-
-
 }
