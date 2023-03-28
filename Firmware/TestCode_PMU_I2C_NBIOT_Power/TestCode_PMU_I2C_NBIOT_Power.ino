@@ -1,7 +1,7 @@
 /*
- Name:    WaterBox_2.ino
- Created: 2020/3/10 下午 07:28:01
- Author:  Liu
+  Name:    WaterBox_2.ino
+  Created: 2020/3/10 下午 07:28:01
+  Author:  Liu
 */
 #include <Adafruit_INA219.h> // 1.0.6
 #include "WaterBox_PMU.h"
@@ -42,7 +42,7 @@ void loop()
   //PMU.getBetteryState();
 
   // if (PMU.state == PMU.MASTER)
-  if(true)
+  if (true)
   {
     PMU.ControlPower(PMU.OFF);
     Serial.println(F("[System] Upload to ThinkSpeak"));
@@ -71,27 +71,34 @@ void loop()
     _Data += F("\"");
 
     NBIOT.ON();
-    NBIOT.AT_Test();
-    NBIOT.AT_CMD(F("AT+CSTT=\"internet.iot\""), true);
-    NBIOT.AT_CMD(F("AT+CIICR"), true);
-    NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"Contype\", \"GPRS\""), true);
-    NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"APN\",\"internet.iot\""), true);
-    NBIOT.AT_CMD(F("AT+SAPBR=1,1"), true);
     
-    NBIOT.AT_CMD(F("AT+HTTPINIT"), true);
+    for(uint8_t _i=0;_i<60;_i++)
+    {
+      NBIOT.AT_Test();
+      NBIOT.AT_CMD(F("AT+CSQ"), true);
+      delay(1000);  
+    }
+    
+    //NBIOT.AT_CMD(F("AT+CSTT=\"internet.iot\""), true);
+    //NBIOT.AT_CMD(F("AT+CIICR"), true);
+    //NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"Contype\", \"GPRS\""), true);
+    //NBIOT.AT_CMD(F("AT+SAPBR=3,1,\"APN\",\"internet.iot\""), true);
+    //NBIOT.AT_CMD(F("AT+SAPBR=1,1"), true);
 
-    NBIOT.AT_CMD(F("AT+HTTPPARA=\"CID\",1"), true);
+    //NBIOT.AT_CMD(F("AT+HTTPINIT"), true);
 
-    NBIOT.AT_CMD(_Data, false);
+    //NBIOT.AT_CMD(F("AT+HTTPPARA=\"CID\",1"), true);
+
+    //NBIOT.AT_CMD(_Data, false);
     delay(500);
 
-    NBIOT.AT_CMD(F("AT+HTTPACTION=0"), true);
-    delay(20000);
-    NBIOT.AT_CMD(F("AT+HTTPREAD"), true);
-    NBIOT.AT_CMD(F("AT+HTTPTERM"), true);
+    //NBIOT.AT_CMD(F("AT+HTTPACTION=0"), true);
+    //delay(20000);
+    //NBIOT.AT_CMD(F("AT+HTTPREAD"), true);
+    //NBIOT.AT_CMD(F("AT+HTTPTERM"), true);
 
-    NBIOT.AT_CMD(F("AT+SAPBR=0,1"), true);
-    NBIOT.AT_CMD(F("AT+CIPSHUT"), true);
+    //NBIOT.AT_CMD(F("AT+SAPBR=0,1"), true);
+    //NBIOT.AT_CMD(F("AT+CIPSHUT"), true);
     NBIOT.OFF();
 
     // PMU.Sleep();
