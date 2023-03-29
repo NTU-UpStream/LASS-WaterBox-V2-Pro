@@ -74,11 +74,6 @@ void loop(void) {
     strcat(ID, PMU.Field_3);
     strcat(ID, radomID);  // 增加亂數在裡面
 
-    Serial.print(F("[MQTT]\tClientID -> "));
-    Serial.println(ID);
-    Serial.print(F("[MQTT]\t   Topic -> "));
-    Serial.println(TOPIC);
-
     // 建立Publish封包
     memset(MSG, '\0', MSG_SIZE);
     strcat_PF(MSG, MSG_INIT);
@@ -142,6 +137,10 @@ void loop(void) {
     // msg_str = "|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date=2019-03-21|time=06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.70|bat_a=400.00|";
     // 確認打包後的封包內容
     Serial.println(F("==================================="));
+    Serial.print(F("[MQTT]\tClientID -> "));
+    Serial.println(ID);
+    Serial.print(F("[MQTT]\t   Topic -> "));
+    Serial.println(TOPIC);
     Serial.print(F("[MQTT]\tSize:"));
     Serial.print(strlen(MSG));
     Serial.print(F(" >> "));
