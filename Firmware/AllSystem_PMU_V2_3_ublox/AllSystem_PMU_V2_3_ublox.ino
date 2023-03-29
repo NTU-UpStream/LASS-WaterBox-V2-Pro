@@ -13,14 +13,14 @@ SoftwareSerial sNBIOT(9, 8);  //(rxPin, txPin)
 #define NB_POWER 3
 ublox NBIOT;
 
-
 // LASS MQTT Config
 const char Server_LASS[] PROGMEM = "gpssensor.ddns.net";
 const char MQTT_LASS_Topic[] PROGMEM = "LASS/Test/WaterBox_TW/";
-#define Port_LASS 1883
+const char Port_LASS[] PROGMEM = "1883";
 const char MSG_INIT[] PROGMEM = "|device=Linkit7697|ver_app=1.1.0|tick=0|FAKE_GPS=1";
 
 #define MSG_SIZE 300  // MQTT 訊息的上限
+uint16_t _sUartBufferSize;
 static char TOPIC[40] = { '\0' };
 static char MSG[MSG_SIZE] = { '\0' };
 static char ID[20] = { '\0' };
@@ -74,9 +74,9 @@ void loop(void) {
     strcat(ID, PMU.Field_3);
     strcat(ID, radomID);  // 增加亂數在裡面
 
-    Serial.print(F("[MQTT]\tClient ID -> "));
+    Serial.print(F("[MQTT]\tClientID -> "));
     Serial.println(ID);
-    Serial.print(F("[MQTT]\t Topic -> "));
+    Serial.print(F("[MQTT]\t   Topic -> "));
     Serial.println(TOPIC);
 
     // 建立Publish封包
@@ -141,6 +141,7 @@ void loop(void) {
     // 把要傳送封包(LASS 格式), 打包成String
     // msg_str = "|device=Linkit7697|device_id=9C65F920C020|ver_app=1.1.0|date=2019-03-21|time=06:53:55|tick=0|FAKE_GPS=1|gps_lon=121.787|gps_lat=25.1933|s_ec=200000.00|s_ph=14.00|s_t0=100.00|s_Tb=10000.00|bat_v=3.70|bat_a=400.00|";
     // 確認打包後的封包內容
+    Serial.println(F("==================================="));
     Serial.print(F("[MQTT]\tSize:"));
     Serial.print(strlen(MSG));
     Serial.print(F(" >> "));
@@ -150,7 +151,7 @@ void loop(void) {
 
 
     NBIOT.ON(45);  // 開啟動模組45秒
-
+    
     // 初始化MQTT參數(花時0.8*4 = 3.2sec)
     sprintf_P(STR_BUFFER, PSTR("AT+UMQTT=0,\"%s\""), ID);
     NBIOT.AT_CMD(STR_BUFFER, true);
@@ -166,41 +167,19 @@ void loop(void) {
 
     // 嘗試連線45次, 一次2秒，最多90秒
     for (int8_t _i = 45; _i > 0; _i--) {
+
+      // 用 "AT+CGATT?"測試跟是否加入電信商的網路
       isOnline = NBIOT.isOnline();
+
       if (!isOnline) {
         Serial.print(_i);
-        Serial.println(F("[SYS-ERROR] NBIOT was offline"));
+        Serial.println(F("[SYS-ERROR]\tNBIOT was offline"));
         delay(2000);
       } else {
-
-        Serial.println(F("[SYS-OK] NBIOT is online"));
-        NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000);  // 先強制關閉連線(2sec)
-
-        // 發布訊息(10+5+0.8 sec)
-        // 開啟MQTT Broker連線(登入broker)
-        Serial.println(F("[MQTT] Concenting MQTT Broker"));
-        sprintf_P(STR_BUFFER, PSTR("AT+UMQTTC=1"));
-        NBIOT.AT_CMD(STR_BUFFER, true, 10000);  // 登入10秒等待
-
-        // 傳松資料（預留）5秒空檔
-        sNBIOT.print(F("AT+UMQTTC=2,2,1,\""));
-        sNBIOT.print(TOPIC);
-        sNBIOT.print(F("\",\""));
-        sNBIOT.print(MSG);
-        sNBIOT.println(F("\""));
-        sNBIOT.flush();
-        delay(5000);
-        uint16_t size = sNBIOT.available();
-        for (uint16_t _i = 0; _i < size; _i++) {
-          Serial.print((char)sNBIOT.read());
-        }
-        Serial.println();
-
-        // 關閉MQTT Broker連線
-        Serial.println(F("[MQTT] Disconnect MQTT Broker"));
-        sprintf_P(STR_BUFFER, PSTR("AT+UMQTTC=0"));
-        NBIOT.AT_CMD(STR_BUFFER, true);
-        _i = -1;  // 強制跳出 for
+        Serial.println(F("[SYS-OK]\tNBIOT is online"));
+        NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000);  // 先強制關閉連線(2sec)<怕之前的ClientID還在Broker上
+        NBIOT.MQTT_pub(TOPIC, MSG, 1, 1);         //
+        _i = -1;                                  // 強制跳出 for
       }
     }
 
