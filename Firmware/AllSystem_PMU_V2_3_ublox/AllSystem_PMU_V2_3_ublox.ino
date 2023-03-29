@@ -148,7 +148,8 @@ void loop(void) {
     Serial.println(F("==================================="));
     Serial.println(F("\r\n"));
 
-
+    delay(1000);  // 停一秒做7697 及 NBIOT模組供電切換
+    
     NBIOT.ON(45);  // 開啟動模組45秒
     
     // 初始化MQTT參數(花時0.8*4 = 3.2sec)
@@ -176,8 +177,8 @@ void loop(void) {
         delay(2000);
       } else {
         Serial.println(F("[SYS-OK]\tNBIOT is online"));
-        NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000);  // 先強制關閉連線(2sec)<怕之前的ClientID還在Broker上
-        NBIOT.MQTT_pub(TOPIC, MSG, 1, 1);         //
+        NBIOT.AT_CMD("AT+UMQTTC=0", true, 2000);  // 先強制關閉連線(2sec，怕之前的ClientID還在Broker上
+        NBIOT.MQTT_pub(TOPIC, MSG, 1, 1);         // _topic, _msg, _QoS=0, _retain=0
         _i = -1;                                  // 強制跳出 for
       }
     }
