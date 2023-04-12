@@ -61,7 +61,7 @@ void setup(void) {
 
 void loop(void) {
   if (PMU.state == PMU.MASTER) {
-    PMU.ControlPower(PMU.OFF);
+    PMU.ControlPower(PMU.OFF);  // 關閉7697
 
     _loop_count++;
 
@@ -150,7 +150,7 @@ void loop(void) {
     Serial.println(F("==================================="));
     Serial.println(F("\r\n"));
 
-    delay(1000);  // 停一秒做7697 及 NBIOT模組供電切換
+    delay(1000);  // 停一秒做7697 及 NBIOT模組供電切換緩衝
 
     NBIOT.ON(45);  // 開啟動模組45秒
 
@@ -181,9 +181,11 @@ void loop(void) {
         NBIOT.MQTT_pub(TOPIC, MSG, 1, 0);         // _topic, _msg, _QoS=0, _retain=0
         _i = -1;                                  // 強制跳出 for
       }
-    }  // Eno of for 45
+    }                                   // Eno of for 45 times
 
-    NBIOT.OFF();
+    Serial.println(F("[SYS]\tOFF NBIOT"));
+    digitalWrite(NB_POWER, LOW);
+    // NBIOT.OFF(); // 這邊的gpio控制已經失去功能？？
 
     PMU.Sleep();
   }
