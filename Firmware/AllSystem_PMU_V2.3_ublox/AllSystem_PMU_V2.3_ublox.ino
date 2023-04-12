@@ -152,7 +152,9 @@ void loop(void) {
 
     delay(1000);  // 停一秒做7697 及 NBIOT模組供電切換緩衝
 
-    NBIOT.ON(45);  // 開啟動模組45秒
+    // NBIOT.ON(45);  // 開啟動模組45秒
+    digitalWrite(NB_POWER, HIGH);
+    delay(45000);
 
     // 初始化MQTT參數(花時0.8*4 = 3.2sec)
     sprintf_P(STR_BUFFER, PSTR("AT+UMQTT=0,\"%s\""), ID);
@@ -187,6 +189,10 @@ void loop(void) {
     digitalWrite(NB_POWER, LOW);
     // NBIOT.OFF(); // 這邊的gpio控制已經失去功能？？
 
+    Serial.print(F("[SYS]\tSleep SEC: "));
+    Serial.println(PMU._SleepSec);
+
+    PMU.setSleepSec(600);
     PMU.Sleep();
   }
 }
