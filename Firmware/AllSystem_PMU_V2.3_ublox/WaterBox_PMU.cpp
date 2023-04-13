@@ -15,7 +15,7 @@ uint8_t i2c_BUFFER[30];
 uint8_t WaterBox_PMU::_Debug;
 Stream &WaterBox_PMU::refSerial = Serial;
 uint16_t WaterBox_PMU::_i_for;
-uint8_t WaterBox_PMU::_PowerSave = false;
+uint16_t WaterBox_PMU::_PowerSave = false;
 uint16_t WaterBox_PMU::_SleepSec;
 WaterBox_PMU::IC2Request WaterBox_PMU::_REQUEST;
 char WaterBox_PMU::_ComStr[32];
@@ -297,7 +297,7 @@ void WaterBox_PMU::_receiveEvent(int howMany) {
     delay(10);
   }
   _i_for = 0;  // 使用完畢後歸零
-
+  
   LED(1, 300);
   _Deguber(_ComStr, H_CMD, EOL);
   _cmd(_ComStr);
@@ -339,6 +339,8 @@ void WaterBox_PMU::_cmd(char *_str) {
     PowerSaveMode(POWER(_PowerSave));
     _REQUEST = Req_LOWPOWER;
   }
+
+  
 
   if (strstr_P(_str, PSTR("VOLATE")) != NULL) {  // VOLATE -> 回傳目前電壓
     _REQUEST = Req_BAT_VOLATE;

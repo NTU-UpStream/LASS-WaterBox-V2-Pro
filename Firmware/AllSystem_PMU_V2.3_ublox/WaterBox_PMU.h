@@ -101,7 +101,7 @@ private:
   static uint8_t _INA219Addr;
 
   // uint8_t _SleepMode;                       // 未使用
-  static uint8_t _PowerSave; // 定義是不是要進入省電模式
+  static uint16_t _PowerSave; // 定義是不是要進入省電模式
   static uint16_t _i_for;
   static float _WakeUpVoltage;
 

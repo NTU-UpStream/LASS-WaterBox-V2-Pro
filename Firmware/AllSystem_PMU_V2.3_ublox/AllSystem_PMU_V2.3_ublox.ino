@@ -192,7 +192,6 @@ void loop(void) {
     Serial.print(F("[SYS]\tSleep SEC: "));
     Serial.println(PMU._SleepSec);
 
-    PMU.setSleepSec(600);
     PMU.Sleep();
   }
 }
