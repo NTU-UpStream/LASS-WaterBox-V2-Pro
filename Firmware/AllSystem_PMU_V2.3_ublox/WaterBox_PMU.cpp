@@ -15,7 +15,7 @@ uint8_t i2c_BUFFER[30];
 uint8_t WaterBox_PMU::_Debug;
 Stream &WaterBox_PMU::refSerial = Serial;
 uint16_t WaterBox_PMU::_i_for;
-uint8_t WaterBox_PMU::_PowerSave = false;
+uint16_t WaterBox_PMU::_PowerSave = false;
 uint16_t WaterBox_PMU::_SleepSec;
 WaterBox_PMU::IC2Request WaterBox_PMU::_REQUEST;
 char WaterBox_PMU::_ComStr[32];
